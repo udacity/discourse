@@ -1,0 +1,23 @@
+---
+category_001:
+  id: 1
+  name: cs101
+  color: 9EB83B
+  topic_id: 1
+  topic_count: 0
+  user_id: 1
+  slug: cs101
+  description: Forum for passionate Python and CS learners.
+  text_color: FFFFFF
+
+category_002:
+  id: 2
+  name: cs046
+  color: F1592A
+  topic_id: 2
+  topic_count: 0
+  user_id: 1
+  slug: cs046
+  description: Forum for Java learners and students in cs046
+  text_color: FFFFFF
+  hotness: 5.0

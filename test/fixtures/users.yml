@@ -1,0 +1,27 @@
+---
+boris:
+  id: 1
+  username: boris
+  name: Boris Roussev
+  email: borislav@udacity.com
+  password_hash: 6dc14c97bac279f7ba86b6fef728f2a228b4722bfc2401e826406a79897c8b78
+  salt: c38fff795b91095b70a7222f4c25828b
+  username_lower: boris
+  auth_token: 1bef3739668d7264baf2250d47a27571
+  admin: true
+  approved: true
+  trust_level: 0
+
+chenghan:
+  id: 2
+  username: chenghan
+  name: Cheng-Han Lee
+  email: chenghan@udacity.com
+  password_hash: 6dc14c97bac279f7ba86b6fef728f2a228b4722bfc2401e826406a79897c8b78
+  salt: c38fff795b91095b70a7222f4c25828b
+  username_lower: chenghan
+  auth_token: 1bef3739668d7264baf2250d47a27571
+  admin: false
+  approved: true
+  trust_level: 0
+
