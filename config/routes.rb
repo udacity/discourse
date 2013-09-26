@@ -15,6 +15,8 @@ Discourse::Application.routes.draw do
 
   mount Sidekiq::Web => '/sidekiq', constraints: AdminConstraint.new
 
+  resources :activities
+
   resources :forums
   get 'srv/status' => 'forums#status'
 

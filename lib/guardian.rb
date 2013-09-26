@@ -299,6 +299,10 @@ class Guardian
     is_staff?
   end
 
+  def can_see_activity?
+    is_staff?
+  end
+
   # Recovery Method
   def can_recover_post?(post)
     is_staff? || (is_my_own?(post) && post.user_deleted && !post.deleted_at)
