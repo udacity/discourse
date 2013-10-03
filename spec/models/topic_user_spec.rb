@@ -9,6 +9,7 @@ describe TopicUser do
 
   before do
     DateTime.expects(:now).at_least_once.returns(yesterday)
+    ApplicationController.expects(:log_activity).with(anything).at_least(0).returns(true)
   end
 
   let!(:user) { Fabricate(:coding_horror) }

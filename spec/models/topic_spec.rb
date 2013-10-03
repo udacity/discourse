@@ -8,6 +8,7 @@ describe Topic do
   it { should validate_presence_of :title }
 
   it { should belong_to :category }
+  it { should belong_to :subcategory }
   it { should belong_to :user }
   it { should belong_to :last_poster }
   it { should belong_to :featured_user1 }
@@ -736,6 +737,23 @@ describe Topic do
         end
       end
 
+    end
+
+    context 'changing subcategory' do
+      let(:category) { Fabricate(:category) }
+      let(:subcategory) { Fabricate(:subcategory) }
+
+      it 'changes subcategory' do
+        topic.category = category
+        topic.change_subcategory(subcategory.name)
+        topic.subcategory.name.should == subcategory.name
+      end
+
+      it 'drops subcategory for blank category' do
+        topic.change_category(nil)
+        topic.change_subcategory(subcategory.name)
+        topic.subcategory_id.should be_nil
+      end
     end
 
     context 'bumping the topic' do

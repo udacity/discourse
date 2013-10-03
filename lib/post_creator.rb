@@ -30,6 +30,7 @@ class PostCreator
   #     title                 - New topic title
   #     archetype             - Topic archetype
   #     category              - Category to assign to topic
+  #     subcategory           - Subcategory to assign to topic
   #     target_usernames      - comma delimited list of usernames for membership (private message)
   #     target_group_names    - comma delimited list of groups for membership (private message)
   #     meta_data             - Topic meta data hash

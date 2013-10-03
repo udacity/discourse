@@ -33,6 +33,17 @@
                 {{categoryChooser valueAttribute="name" value=model.categoryName}}
                 {{popupInputTip validation=view.categoryValidation shownAt=view.showCategoryTip}}
               </div>
+              {{#if setSubcategories}}
+                <div class="category-input" >
+                  {{view Ember.Select
+                    contentBinding="subcategories"
+                    valueBinding="model.subcategoryName"
+                    selectionBinding="model.subcategoryName"
+                  }}
+                {{popupInputTip validation=view.nodeValidation shownAt=view.showNodeTip}}
+                </div>
+              {{/if}}
+
               {{#if model.archetype.hasOptions}}
                 <button class='btn' {{action showOptions}}>{{i18n topic.options}}</button>
               {{/if}}

@@ -8,14 +8,31 @@
 **/
 Discourse.ComposerController = Discourse.Controller.extend({
   needs: ['modal', 'topic', 'composerMessages'],
+  subcategories: [],
 
   replyAsNewTopicDraft: Em.computed.equal('model.draftKey', Discourse.Composer.REPLY_AS_NEW_TOPIC_KEY),
-
 
   init: function() {
     this._super();
     this.set('similarTopics', Em.A());
   },
+
+  setSubcategories: function() {
+    var model = this.get('model');
+    if (model) {
+      if (model.categoryName) {
+        var category = Discourse.Category.list().findProperty('name', model.categoryName);
+        var subcategoryNames = _.map(category.subcategories, function(n){
+          return n.name;
+        });
+        if (subcategoryNames.length > 0) {
+          this.set('subcategories', subcategoryNames);
+          return true;
+        }
+      }
+    }
+    return null;
+  }.property('model.categoryName'),
 
   togglePreview: function() {
     this.get('model').togglePreview();
@@ -46,6 +63,7 @@ Discourse.ComposerController = Discourse.Controller.extend({
     if( composer.get('cantSubmitPost') ) {
       this.set('view.showTitleTip', Date.now());
       this.set('view.showCategoryTip', Date.now());
+      this.set('view.showSubcategoryTip', Date.now());
       this.set('view.showReplyTip', Date.now());
       return;
     }

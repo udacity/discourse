@@ -102,6 +102,7 @@ class TopicsController < ApplicationController
     Topic.transaction do
       success = topic.save
       topic.change_category(params[:category]) if success
+      topic.change_subcategory(params[:subcategory]) if success
     end
 
     # this is used to return the title to the client as it may have been

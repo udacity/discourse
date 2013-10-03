@@ -121,10 +121,10 @@ Discourse.Composer = Discourse.Model.extend({
     // reply is always required
     if (this.get('missingReplyCharacters') > 0) return true;
 
-    if (this.get('canCategorize') && !Discourse.SiteSettings.allow_uncategorized_topics && !this.get('categoryName')) return true;
+    if (this.get('canCategorize') && !Discourse.SiteSettings.allow_uncategorized_topics && (!this.get('categoryName') || !this.get('subcategoryName'))) return true;
 
     return false;
-  }.property('loading', 'canEditTitle', 'titleLength', 'targetUsernames', 'replyLength', 'categoryName', 'missingReplyCharacters'),
+  }.property('loading', 'canEditTitle', 'titleLength', 'targetUsernames', 'replyLength', 'categoryName', 'subcategoryName', 'missingReplyCharacters'),
 
   /**
     Is the title's length valid?
@@ -329,6 +329,7 @@ Discourse.Composer = Discourse.Model.extend({
 
     this.setProperties({
       categoryName: opts.categoryName || this.get('topic.category.name'),
+      subcategoryName: opts.subcategoryName || this.get('topic.subcategory.name'),
       archetypeId: opts.archetypeId || Discourse.Site.currentProp('default_archetype'),
       metaData: opts.metaData ? Em.Object.create(opts.metaData) : null,
       reply: opts.reply || this.get("reply") || ""
@@ -407,6 +408,13 @@ Discourse.Composer = Discourse.Model.extend({
           categoryName: category.get('name'),
           category_id: category.get('id')
         });
+        var subcategory = category.subcategories.findProperty('name', this.get('subcategoryName'));
+        if (subcategory) {
+          topic.setProperties({
+            subcategoryName: subcategory.get('name'),
+            subcategory_id: subcategory.get('id')
+          });
+        }
       }
       topic.save();
     }
@@ -448,6 +456,7 @@ Discourse.Composer = Discourse.Model.extend({
       raw: this.get('reply'),
       title: this.get('title'),
       category: this.get('categoryName'),
+      subcategory: this.get('subcategoryName'),
       topic_id: this.get('topic.id'),
       reply_to_post_number: post ? post.get('post_number') : null,
       imageSizes: opts.imageSizes,
@@ -545,6 +554,7 @@ Discourse.Composer = Discourse.Model.extend({
       action: this.get('action'),
       title: this.get('title'),
       categoryName: this.get('categoryName'),
+      subcategoryName: this.get('subcategoryName'),
       postId: this.get('post.id'),
       archetypeId: this.get('archetypeId'),
       metaData: this.get('metaData'),
@@ -600,6 +610,7 @@ Discourse.Composer.reopenClass({
         action: draft.action,
         title: draft.title,
         categoryName: draft.categoryName,
+        subcategoryName: draft.subcategoryName,
         postId: draft.postId,
         archetypeId: draft.archetypeId,
         reply: draft.reply,

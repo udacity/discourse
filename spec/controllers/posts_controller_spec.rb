@@ -1,7 +1,9 @@
 require 'spec_helper'
 
 describe PostsController do
-
+  before do
+    ApplicationController.expects(:log_activity).with(anything).at_least(0).returns(true)
+  end
 
   describe 'short_link' do
     it 'logs the incoming link once' do
