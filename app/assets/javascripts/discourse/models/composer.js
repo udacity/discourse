@@ -121,7 +121,9 @@ Discourse.Composer = Discourse.Model.extend({
     // reply is always required
     if (this.get('missingReplyCharacters') > 0) return true;
 
-    if (this.get('canCategorize') && !Discourse.SiteSettings.allow_uncategorized_topics && (!this.get('categoryName') || !this.get('subcategoryName'))) return true;
+    if (this.get('canCategorize') && !Discourse.SiteSettings.allow_uncategorized_topics && !this.get('categoryName')) return true;
+
+    if (this.get('canCategorize') && !Discourse.SiteSettings.allow_unsubcategorized_topics && !this.get('subcategoryName')) return true;
 
     return false;
   }.property('loading', 'canEditTitle', 'titleLength', 'targetUsernames', 'replyLength', 'categoryName', 'subcategoryName', 'missingReplyCharacters'),

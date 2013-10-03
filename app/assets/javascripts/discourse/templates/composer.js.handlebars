@@ -38,9 +38,10 @@
                   {{view Ember.Select
                     contentBinding="subcategories"
                     valueBinding="model.subcategoryName"
+                    prompt="composer.users_placeholder"
                     selectionBinding="model.subcategoryName"
                   }}
-                {{popupInputTip validation=view.nodeValidation shownAt=view.showNodeTip}}
+                  {{popupInputTip validation=view.subcategoryValidation shownAt=view.showSubcategoryTip}}
                 </div>
               {{/if}}
 

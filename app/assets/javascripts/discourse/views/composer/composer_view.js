@@ -359,6 +359,12 @@ Discourse.ComposerView = Discourse.View.extend({
     }
   }.property('model.categoryName'),
 
+  subcategoryValidation: function() {
+    if( !Discourse.SiteSettings.allow_unsubcategorized_topics && !this.get('model.subcategoryName')) {
+      return Discourse.InputValidation.create({ failed: true, reason: I18n.t('composer.error.subcategory_missing') });
+    }
+  }.property('model.subcategoryName'),
+
   replyValidation: function() {
     var replyLength = this.get('model.replyLength'),
         missingChars = this.get('model.missingReplyCharacters'),
