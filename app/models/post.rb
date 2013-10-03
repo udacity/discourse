@@ -1,4 +1,4 @@
-require_dependency 'jobs'
+require_dependency 'jobs/base'
 require_dependency 'pretty_text'
 require_dependency 'rate_limiter'
 require_dependency 'post_revisor'
@@ -284,7 +284,8 @@ class Post < ActiveRecord::Base
                           AND p2.user_id <> post_timings.user_id
                       GROUP BY post_timings.topic_id, post_timings.post_number) AS x
                 WHERE x.topic_id = posts.topic_id
-                  AND x.post_number = posts.post_number")
+                  AND x.post_number = posts.post_number
+                  AND (posts.avg_time <> (x.gmean / 1000)::int OR posts.avg_time IS NULL)")
     end
   end
 

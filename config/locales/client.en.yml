@@ -284,6 +284,7 @@ en:
 
       email_direct: "Receive an email when someone quotes you, replies to your post, or mentions your @username"
       email_private_messages: "Receive an email when someone sends you a private message"
+      email_always: "Receive email notifications and email digests even if I am active on the forum"
 
       other_settings: "Other"
 
@@ -1166,6 +1167,8 @@ en:
         long_title: "Site Customizations"
         header: "Header"
         css: "Stylesheet"
+        mobile_header: "Mobile Header"
+        mobile_css: "Mobile Stylesheet"
         override_default: "Do not include standard style sheet"
         enabled: "Enabled?"
         preview: "preview"

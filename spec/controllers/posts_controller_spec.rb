@@ -231,7 +231,7 @@ describe PostsController do
         update_params.delete(:post)
         lambda {
           xhr :put, :update, update_params
-	}.should raise_error(ActionController::ParameterMissing)
+        }.should raise_error(ActionController::ParameterMissing)
       end
 
       it "raises an error when the user doesn't have permission to see the post" do
@@ -393,8 +393,8 @@ describe PostsController do
         end
 
         it "passes image_sizes through" do
-          PostCreator.expects(:new).with(user, has_entries('image_sizes' => 'test')).returns(post_creator)
-          xhr :post, :create, {raw: 'hello', image_sizes: 'test'}
+          PostCreator.expects(:new).with(user, has_entries('image_sizes' => {'width' => '100', 'height' => '200'})).returns(post_creator)
+          xhr :post, :create, {raw: 'hello', image_sizes: {width: '100', height: '200'}}
         end
 
         it "passes meta_data through" do
