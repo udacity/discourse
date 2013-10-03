@@ -34,6 +34,7 @@ module Discourse
     # Custom directories with classes and modules you want to be autoloadable.
     config.autoload_paths += Dir["#{config.root}/app/serializers"]
     config.autoload_paths += Dir["#{config.root}/lib/validators/"]
+    config.autoload_paths += Dir["#{config.root}/app"]
 
     # Only load the plugins named here, in the order given (default is alphabetical).
     # :all can be used as a placeholder for all plugins not explicitly named.
@@ -112,8 +113,8 @@ module Discourse
 
     # ember stuff only used for asset precompliation, production variant plays up
     config.ember.variant = :development
-    config.ember.ember_location = "#{Rails.root}/app/assets/javascripts/external_production/ember.js"
-    config.ember.handlebars_location = "#{Rails.root}/app/assets/javascripts/external/handlebars.js"
+    config.ember.ember_location = "#{Rails.root}/vendor/assets/javascripts/production/ember.js"
+    config.ember.handlebars_location = "#{Rails.root}/vendor/assets/javascripts/handlebars.js"
 
     # Since we are using strong_parameters, we can disable and remove
     # attr_accessible.
@@ -125,12 +126,20 @@ module Discourse
       Discourse.activate_plugins!
     end
 
-    # So open id logs somewhere sane
     config.after_initialize do
+      # So open id logs somewhere sane
       OpenID::Util.logger = Rails.logger
+      if plugins = Discourse.plugins
+        plugins.each{|plugin| plugin.notify_after_initialize}
+      end
     end
 
     require 'middleware/sso_cookie_sessionkiller'
     config.middleware.insert_after ActionDispatch::RemoteIp, Middleware::SsoCookieSessionkiller
+
+    # This is not really required per-se, but we do not want to support
+    # XML params, we see errors in our logs about malformed XML and there
+    # absolutly no spot in our app were we use XML as opposed to JSON endpoints
+    ActionDispatch::ParamsParser::DEFAULT_PARSERS.delete(Mime::XML)
   end
 end
