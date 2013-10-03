@@ -10,20 +10,35 @@ Discourse.ComposerController = Discourse.Controller.extend({
   needs: ['modal', 'topic', 'composerMessages'],
 
   replyAsNewTopicDraft: Em.computed.equal('model.draftKey', Discourse.Composer.REPLY_AS_NEW_TOPIC_KEY),
-
+  checkedMessages: false,
 
   init: function() {
     this._super();
     this.set('similarTopics', Em.A());
   },
 
-  togglePreview: function() {
-    this.get('model').togglePreview();
-  },
+  actions: {
+    // Toggle the reply view
+    toggle: function() {
+      this.toggle();
+    },
 
-  // Import a quote from the post
-  importQuote: function() {
-    this.get('model').importQuote();
+    togglePreview: function() {
+      this.get('model').togglePreview();
+    },
+
+    // Import a quote from the post
+    importQuote: function() {
+      this.get('model').importQuote();
+    },
+
+    cancel: function() {
+      this.cancelComposer();
+    },
+
+    save: function() {
+      this.save();
+    }
   },
 
   updateDraftStatus: function() {
@@ -38,6 +53,26 @@ Discourse.ComposerController = Discourse.Controller.extend({
   categories: function() {
     return Discourse.Category.list();
   }.property(),
+
+
+  toggle: function() {
+    this.closeAutocomplete();
+    switch (this.get('model.composeState')) {
+      case Discourse.Composer.OPEN:
+        if (this.blank('model.reply') && this.blank('model.title')) {
+          this.close();
+        } else {
+          this.shrink();
+        }
+        break;
+      case Discourse.Composer.DRAFT:
+        this.set('model.composeState', Discourse.Composer.OPEN);
+        break;
+      case Discourse.Composer.SAVING:
+        this.close();
+    }
+    return false;
+  },
 
   save: function(force) {
     var composer = this.get('model'),
@@ -117,33 +152,18 @@ Discourse.ComposerController = Discourse.Controller.extend({
     });
   },
 
-  _considerNewUserEducation: function() {
+  /**
+    Checks to see if a reply has been typed. This is signaled by a keyUp
+    event in a view.
 
-    // We don't show education when editing a post.
-    if (this.get('model.editingPost')) return;
-
-    // If creating a topic, use topic_count, otherwise post_count
-    var count = this.get('model.creatingTopic') ? Discourse.User.currentProp('topic_count') : Discourse.User.currentProp('reply_count');
-    if (count >= Discourse.SiteSettings.educate_until_posts) { return; }
-
-    // The user must have typed a reply
-    if (!this.get('typedReply')) return;
-
-    // If visible update the text
-    var educationKey = this.get('model.creatingTopic') ? 'new-topic' : 'new-reply',
-        messageController = this.get('controllers.composerMessages');
-
-    Discourse.ajax("/education/" + educationKey, {dataType: 'html'}).then(function(result) {
-      messageController.popup({
-        templateName: 'composer/education',
-        body: result
-      });
-    });
-
-  }.observes('typedReply', 'model.creatingTopic', 'currentUser.reply_count'),
-
+    @method checkReplyLength
+  **/
   checkReplyLength: function() {
-    this.set('typedReply', this.present('model.reply'));
+    if (this.present('model.reply')) {
+      // Notify the composer messages controller that a reply has been typed. Some
+      // messages only appear after typing.
+      this.get('controllers.composerMessages').typedReply();
+    }
   },
 
   /**
@@ -171,11 +191,11 @@ Discourse.ComposerController = Discourse.Controller.extend({
       similarTopics.clear();
       similarTopics.pushObjects(newTopics);
 
-      messageController.popup({
+      messageController.popup(Discourse.ComposerMessage.create({
         templateName: 'composer/similar_topics',
         similarTopics: similarTopics,
         extraClass: 'similar-topics'
-      });
+      }));
     });
 
   },
@@ -203,7 +223,6 @@ Discourse.ComposerController = Discourse.Controller.extend({
 
     var promise = opts.promise || Ember.Deferred.create();
     opts.promise = promise;
-    this.set('typedReply', false);
 
     if (!opts.draftKey) {
       alert("composer was opened without a draft key");
@@ -246,7 +265,7 @@ Discourse.ComposerController = Discourse.Controller.extend({
       } else {
         opts.tested = true;
         if (!opts.ignoreIfChanged) {
-          this.cancel().then(function() { composerController.open(opts); },
+          this.cancelComposer().then(function() { composerController.open(opts); },
                              function() { return promise.reject(); });
         }
         return promise;
@@ -272,8 +291,10 @@ Discourse.ComposerController = Discourse.Controller.extend({
 
     composer = composer || Discourse.Composer.create();
     composer.open(opts);
+
     this.set('model', composer);
     composer.set('composeState', Discourse.Composer.OPEN);
+    composerMessages.queryFor(this.get('model'));
     promise.resolve();
     return promise;
   },
@@ -292,7 +313,7 @@ Discourse.ComposerController = Discourse.Controller.extend({
     }
   },
 
-  cancel: function() {
+  cancelComposer: function() {
     var composerController = this;
 
     return Ember.Deferred.promise(function (promise) {
@@ -344,26 +365,6 @@ Discourse.ComposerController = Discourse.Controller.extend({
 
   closeAutocomplete: function() {
     $('#wmd-input').autocomplete({ cancel: true });
-  },
-
-  // Toggle the reply view
-  toggle: function() {
-    this.closeAutocomplete();
-    switch (this.get('model.composeState')) {
-      case Discourse.Composer.OPEN:
-        if (this.blank('model.reply') && this.blank('model.title')) {
-          this.close();
-        } else {
-          this.shrink();
-        }
-        break;
-      case Discourse.Composer.DRAFT:
-        this.set('model.composeState', Discourse.Composer.OPEN);
-        break;
-      case Discourse.Composer.SAVING:
-        this.close();
-    }
-    return false;
   },
 
   // ESC key hit
