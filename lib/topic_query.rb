@@ -65,12 +65,12 @@ class TopicQuery
       "CASE WHEN (topics.pinned_at IS NOT NULL) THEN 0 ELSE 1 END, topics.bumped_at DESC"
     end
 
-    def top_viewed(max)
-      Topic.listable_topics.visible.secured.order('views desc').take(10)
+    def top_viewed(max = 10)
+      Topic.listable_topics.visible.secured.order('views desc').limit(max)
     end
 
-    def recent(max)
-      Topic.listable_topics.visible.secured.order('created_at desc').take(10)
+    def recent(max = 10)
+      Topic.listable_topics.visible.secured.order('created_at desc').limit(max)
     end
   end
 
@@ -176,7 +176,7 @@ class TopicQuery
   end
 
   def list_new_in_category(category)
-    create_list(:new_in_category) {|l| l.where(category_id: category.id).by_newest.first(25)}
+    create_list(:new_in_category, unordered: true) {|l| l.where(category_id: category.id).by_newest.first(25)}
   end
 
   def self.new_filter(list, treat_as_new_topic_start_date)

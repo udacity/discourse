@@ -20,7 +20,7 @@ module ApplicationHelper
   end
 
   def html_classes
-    "#{mobile_view? ? 'mobile-view' : ''} #{mobile_device? ? 'mobile-device' : ''}"
+    "#{mobile_view? ? 'mobile-view' : 'desktop-view'} #{mobile_device? ? 'mobile-device' : 'not-mobile-device'}"
   end
 
   def escape_unicode(javascript)
@@ -109,6 +109,7 @@ module ApplicationHelper
   end
 
   def mobile_view?
+    return false unless SiteSetting.enable_mobile_theme
     if session[:mobile_view]
       session[:mobile_view] == '1'
     else
@@ -118,6 +119,6 @@ module ApplicationHelper
 
   def mobile_device?
     # TODO: this is dumb. user agent matching is a doomed approach. a better solution is coming.
-    request.user_agent =~ /Mobile|webOS/ and !(request.user_agent =~ /iPad/)
+    request.user_agent =~ /Mobile|webOS|Nexus 7/ and !(request.user_agent =~ /iPad/)
   end
 end

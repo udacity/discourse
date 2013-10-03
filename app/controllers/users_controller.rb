@@ -57,7 +57,7 @@ class UsersController < ApplicationController
       u.new_topic_duration_minutes = params[:new_topic_duration_minutes].to_i if params[:new_topic_duration_minutes]
       u.title = params[:title] || u.title if guardian.can_grant_title?(u)
 
-      [:email_digests, :email_direct, :email_private_messages,
+      [:email_digests, :email_always, :email_direct, :email_private_messages,
        :external_links_in_new_tab, :enable_quoting, :dynamic_favicon].each do |i|
         if params[i].present?
           u.send("#{i.to_s}=", params[i] == 'true')
@@ -205,7 +205,7 @@ class UsersController < ApplicationController
   def change_email
     params.require(:email)
     user = fetch_user_from_params
-    guardian.ensure_can_edit!(user)
+    guardian.ensure_can_edit_email!(user)
     lower_email = Email.downcase(params[:email]).strip
 
     # Raise an error if the email is already in use
