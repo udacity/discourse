@@ -311,12 +311,28 @@ class ApplicationController < ActionController::Base
         return
       end
 
-      return if current_user.use_uploaded_avatar \
-        && auth_cookie['avatar_url'] == current_user.uploaded_avatar_template \
-        && current_user.use_uploaded_avatar
+      user_needs_updating   = !current_user.use_uploaded_avatar
+      user_needs_updating ||= auth_cookie['avatar_url'] != current_user.uploaded_avatar_template
+      user_needs_updating ||= !current_user.use_uploaded_avatar
+      # this is vulnerable to the following scenario:
+      # - use is admin, logs in on the main site, gets SSO cookie
+      # - users admin is revoked on the main site, but s/he never visits it again
+      # - using the valid SSO cookie s/he gets admin on Discourse
+      # this is deemed acceptable for the moment since:
+      # - SSO cookies have an embedded lifetime (currently set to 10 days) after which they are
+      #   no longer accepted
+      # - in the worst case we can invalidate all session on Discourse, forcing all users to
+      #   reauthenticate (by clearing Redis)
+      should_be_admin = auth_cookie['roles'].include?("ScopedRole.admin\\3aglobal") \
+        || auth_cookie['roles'].include?("ScopedRole.staff\\3aglobal") \
+        || auth_cookie['roles'].include?("ScopedRole.instructor\\3aglobal");
+      user_needs_updating ||= current_user.admin != should_be_admin
+
+      return unless user_needs_updating
 
       current_user.uploaded_avatar_template = auth_cookie['avatar_url']
       current_user.use_uploaded_avatar = true
+      current_user.admin = should_be_admin
       current_user.save()
     end
 
