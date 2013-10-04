@@ -372,6 +372,7 @@ en:
     private_message_info:
       title: "Private Message"
       invite: "Invite Others..."
+      remove_allowed_user: "Do you really want to remove {{name}} from this private message?"
 
     email: 'Email'
     username: 'Username'
@@ -580,6 +581,7 @@ en:
       title: Topic Rank Details
 
     topic:
+      filter_to: "Toggle only posts by {{username}} in this topic"
       create_in: 'Create {{categoryName}} Topic'
       create: 'Create Topic'
       create_long: 'Create a new Topic'
