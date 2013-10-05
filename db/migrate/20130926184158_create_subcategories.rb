@@ -3,6 +3,7 @@ class CreateSubcategories < ActiveRecord::Migration
     create_table :subcategories do |t|
       t.string :key
       t.string :name
+      t.string :description
       t.references :category
       t.references :user
 
