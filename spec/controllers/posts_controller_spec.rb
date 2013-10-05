@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe PostsController do
   before do
-    ApplicationController.expects(:log_activity).with(anything).at_least(0).returns(true)
+    PostsController.any_instance.stubs(:log_activity)
   end
 
   describe 'short_link' do
