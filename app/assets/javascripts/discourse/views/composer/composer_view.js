@@ -360,7 +360,7 @@ Discourse.ComposerView = Discourse.View.extend({
   }.property('model.categoryName'),
 
   subcategoryValidation: function() {
-    if( !Discourse.SiteSettings.enable_subcategories_support && !this.get('model.subcategoryName')) {
+    if( Discourse.SiteSettings.enable_subcategories_support && !this.get('model.subcategoryName')) {
       return Discourse.InputValidation.create({ failed: true, reason: I18n.t('composer.error.subcategory_missing') });
     }
   }.property('model.subcategoryName'),

@@ -123,7 +123,7 @@ Discourse.Composer = Discourse.Model.extend({
 
     if (this.get('canCategorize') && !Discourse.SiteSettings.allow_uncategorized_topics && !this.get('categoryName')) return true;
 
-    if (this.get('canCategorize') && !Discourse.SiteSettings.enable_subcategories_support && !this.get('subcategoryName')) return true;
+    if (this.get('canCategorize') && Discourse.SiteSettings.enable_subcategories_support && !this.get('subcategoryName')) return true;
 
     return false;
   }.property('loading', 'canEditTitle', 'titleLength', 'targetUsernames', 'replyLength', 'categoryName', 'subcategoryName', 'missingReplyCharacters'),

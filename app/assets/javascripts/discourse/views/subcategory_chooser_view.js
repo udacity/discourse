@@ -14,38 +14,26 @@ Discourse.SubcategoryChooserView = Discourse.ComboboxView.extend({
 
     init: function() {
         this._super();
+        this.set('content', this.get('controller.subcategories'));
     },
 
     subcategoriesChanged: function() {
-      this.set('content', this.get('controller.subcategories_objects'));
-      var x = 1;
-    }.observes('controller.subcategories_objects'),
+      this.set('content', this.get('controller.subcategories'));
+      this.rerender();
+    }.observes('controller.subcategories'),
 
     none: function() {
-        if (Discourse.SiteSettings.allow_uncategorized_topics || this.get('showUncategorized')) return 'category.none';
-    }.property('showUncategorized'),
+      return 'subcategory.none';
+    }.property('showUnsubcategorized'),
 
     template: function(text, templateData) {
-        return text;
-        if (!templateData.color) return text;
-
-        var result = "<div class='badge-category' style='background-color: #" + templateData.color + '; color: #' +
-            templateData.text_color + ";'>" + templateData.name + "</div>";
-
-        result += " <div class='topic-count'>&times; " + templateData.topic_count + "</div>";
-
-        var description = templateData.description_text;
-        // TODO wtf how can this be null?
-        if (description && description !== 'null') {
-
-            result += '<div class="category-desc">' +
-                description.substr(0,200) +
-                (description.length > 200 ? '&hellip;' : '') +
-                '</div>';
-        }
-        return result;
+      if (templateData.name) {
+        return templateData.name;
+      }
+      else {
+        return I18n.t('subcategory.none');
+      }
     }
-
 });
 
 Discourse.View.registerHelper('subcategoryChooser', Discourse.SubcategoryChooserView);

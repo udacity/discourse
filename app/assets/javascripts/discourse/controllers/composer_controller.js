@@ -9,7 +9,6 @@
 Discourse.ComposerController = Discourse.Controller.extend({
   needs: ['modal', 'topic', 'composerMessages'],
   subcategories: [],
-  subcategories_objects: [],
 
   replyAsNewTopicDraft: Em.computed.equal('model.draftKey', Discourse.Composer.REPLY_AS_NEW_TOPIC_KEY),
 
@@ -26,12 +25,8 @@ Discourse.ComposerController = Discourse.Controller.extend({
     if (model) {
       if (model.categoryName) {
         var category = Discourse.Category.list().findProperty('name', model.categoryName);
-        var subcategoryNames = _.map(category.subcategories, function(n){
-          return n.name;
-        });
-        if (subcategoryNames.length > 0) {
-          this.set('subcategories', subcategoryNames);
-          this.set('subcategories_objects', category.subcategories);
+        if (category.subcategories.length > 0) {
+          this.set('subcategories', category.subcategories);
           return true;
         }
       }
@@ -362,6 +357,7 @@ Discourse.ComposerController = Discourse.Controller.extend({
     this.set('model', null);
     this.set('view.showTitleTip', false);
     this.set('view.showCategoryTip', false);
+    this.set('view.showSubcategoryTip', false);
     this.set('view.showReplyTip', false);
   },
 

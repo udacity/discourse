@@ -34,13 +34,8 @@
                 {{popupInputTip validation=view.categoryValidation shownAt=view.showCategoryTip}}
               </div>
               {{#if setSubcategories}}
-                <div class="category-input" >
-                  {{view Ember.Select
-                    contentBinding="subcategories"
-                    valueBinding="model.subcategoryName"
-                    prompt="composer.users_placeholder"
-                    selectionBinding="model.subcategoryName"
-                  }}
+                <div class="category-input">
+                  {{subcategoryChooser valueAttribute="name" value=model.subcategoryName}}
                   {{popupInputTip validation=view.subcategoryValidation shownAt=view.showSubcategoryTip}}
                 </div>
               {{/if}}
