@@ -9,6 +9,7 @@
 Discourse.ComposerController = Discourse.Controller.extend({
   needs: ['modal', 'topic', 'composerMessages'],
   subcategories: [],
+  subcategories_objects: [],
 
   replyAsNewTopicDraft: Em.computed.equal('model.draftKey', Discourse.Composer.REPLY_AS_NEW_TOPIC_KEY),
 
@@ -18,6 +19,9 @@ Discourse.ComposerController = Discourse.Controller.extend({
   },
 
   setSubcategories: function() {
+    if (!Discourse.SiteSettings.enable_subcategories_support) {
+      return null;
+    }
     var model = this.get('model');
     if (model) {
       if (model.categoryName) {
@@ -27,6 +31,7 @@ Discourse.ComposerController = Discourse.Controller.extend({
         });
         if (subcategoryNames.length > 0) {
           this.set('subcategories', subcategoryNames);
+          this.set('subcategories_objects', category.subcategories);
           return true;
         }
       }
