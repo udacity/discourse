@@ -927,6 +927,9 @@ en:
           one: "Are you sure you want to delete that post?"
           other: "Are you sure you want to delete all those posts?"
 
+    subcategory:
+      none: '(no subcategory)'
+
     category:
       can: 'can&hellip; '
       none: '(no category)'
