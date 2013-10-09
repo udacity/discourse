@@ -312,7 +312,7 @@ class Topic < ActiveRecord::Base
                     FROM posts
                     WHERE avg_time > 0 AND avg_time IS NOT NULL
                     GROUP BY topic_id) AS x
-              WHERE x.topic_id = topics.id")
+              WHERE x.topic_id = topics.id AND (topics.avg_time <> x.gmean OR topics.avg_time IS NULL)")
   end
 
   def changed_to_category(cat)
@@ -397,7 +397,12 @@ class Topic < ActiveRecord::Base
   def remove_allowed_user(username)
     user = User.where(username: username).first
     if user
-      topic_allowed_users.where(user_id: user.id).first.destroy
+      topic_user = topic_allowed_users.where(user_id: user.id).first
+      if topic_user
+        topic_user.destroy
+      else
+        false
+      end
     end
   end
 

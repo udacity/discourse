@@ -29,6 +29,9 @@ class TopicsController < ApplicationController
     return wordpress if params[:best].present?
 
     opts = params.slice(:username_filters, :filter, :page, :post_number)
+
+    opts[:username_filters] = [opts[:username_filters]] if opts[:username_filters].is_a?(String)
+
     begin
       @topic_view = TopicView.new(params[:id] || params[:topic_id], current_user, opts)
     rescue Discourse::NotFound

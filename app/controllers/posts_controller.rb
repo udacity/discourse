@@ -158,7 +158,6 @@ class PostsController < ApplicationController
     raise Discourse::InvalidParameters.new(:post_ids) if posts.blank?
 
     # Make sure we can delete the posts
-
     posts.each {|p| guardian.ensure_can_delete!(p) }
 
     Post.transaction do
@@ -179,11 +178,6 @@ class PostsController < ApplicationController
   def replies
     post = find_post_from_params
     render_serialized(post.replies, PostSerializer)
-  end
-
-  # Returns the "you're creating a post education"
-  def education_text
-
   end
 
   def bookmark
@@ -241,7 +235,6 @@ class PostsController < ApplicationController
         :subcategory,
         :target_usernames,
         :reply_to_post_number,
-        :image_sizes,
         :auto_close_days,
         :auto_track
       ]
@@ -257,6 +250,7 @@ class PostsController < ApplicationController
 
       params.require(:raw)
       params.permit(*permitted).tap do |whitelisted|
+          whitelisted[:image_sizes] = params[:image_sizes]
           # TODO this does not feel right, we should name what meta_data is allowed
           whitelisted[:meta_data] = params[:meta_data]
       end

@@ -107,6 +107,7 @@ Discourse::Application.routes.draw do
   end
 
   get 'session/csrf' => 'session#csrf'
+  get 'composer-messages' => 'composer_messages#index'
 
   resources :users, except: [:show, :update] do
     collection do
@@ -185,7 +186,6 @@ Discourse::Application.routes.draw do
     end
   end
   resources :user_actions
-  resources :education
 
   resources :categories, :except => :show
   get 'category/:id/show' => 'categories#show'

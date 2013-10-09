@@ -79,8 +79,8 @@ class SiteSetting < ActiveRecord::Base
   setting(:use_ssl, false)
   setting(:queue_jobs, !Rails.env.test?)
   setting(:crawl_images, !Rails.env.test?)
-  setting(:max_image_width, 690)
-  setting(:max_image_height, 500)
+  client_setting(:max_image_width, 690)
+  client_setting(:max_image_height, 500)
   setting(:create_thumbnails, true)
   client_setting(:category_featured_topics, 6)
   setting(:topics_per_page, 30)
@@ -258,12 +258,19 @@ class SiteSetting < ActiveRecord::Base
   setting(:delete_all_posts_max, 10)
 
   setting(:username_change_period, 3) # days
+  setting(:email_editable, true)
 
   client_setting(:allow_uploaded_avatars, true)
   client_setting(:allow_animated_avatars, false)
 
   setting(:detect_custom_avatars, false)
   setting(:max_daily_gravatar_crawls, 500)
+
+  setting(:sequential_replies_threshold, 2)
+
+  client_setting(:enable_mobile_theme, true)
+
+  setting(:dominating_topic_minimum_percent, 20)
 
   def self.generate_api_key!
     self.api_key = SecureRandom.hex(32)

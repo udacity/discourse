@@ -10,12 +10,6 @@ Discourse.HeaderController = Discourse.Controller.extend({
   topic: null,
   showExtraInfo: null,
 
-  toggleStar: function() {
-    var topic = this.get('topic');
-    if (topic) topic.toggleStar();
-    return false;
-  },
-
   categories: function() {
     return Discourse.Category.list();
   }.property(),
@@ -32,8 +26,20 @@ Discourse.HeaderController = Discourse.Controller.extend({
     return Discourse.Mobile.mobileView;
   }.property(),
 
-  toggleMobileView: function() {
-    Discourse.Mobile.toggleMobileView();
+  showMobileToggle: function() {
+    return Discourse.SiteSettings.enable_mobile_theme;
+  }.property(),
+
+  actions: {
+    toggleStar: function() {
+      var topic = this.get('topic');
+      if (topic) topic.toggleStar();
+      return false;
+    },
+
+    toggleMobileView: function() {
+      Discourse.Mobile.toggleMobileView();
+    }
   }
 
 });

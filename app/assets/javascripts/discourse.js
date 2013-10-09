@@ -28,7 +28,7 @@ Discourse = Ember.Application.createWithMixins(Discourse.Ajax, {
     return u + url;
   },
 
-  resolver: Discourse.Resolver,
+  Resolver: Discourse.Resolver,
 
   titleChanged: function() {
     var title = "";
@@ -105,19 +105,20 @@ Discourse = Ember.Application.createWithMixins(Discourse.Ajax, {
     $('#main').on('click.discourse', 'a', function(e) {
       if (e.isDefaultPrevented() || e.shiftKey || e.metaKey || e.ctrlKey) { return; }
 
-      var $currentTarget = $(e.currentTarget);
-      var href = $currentTarget.attr('href');
-      if (!href) { return; }
-      if (href === '#') { return; }
-      if ($currentTarget.attr('target')) { return; }
-      if ($currentTarget.data('auto-route')) { return; }
+      var $currentTarget = $(e.currentTarget),
+          href = $currentTarget.attr('href');
 
-      // If it's an ember #linkTo skip it
-      if ($currentTarget.hasClass('ember-view')) { return; }
-
-      if ($currentTarget.hasClass('lightbox')) { return; }
-      if (href.indexOf("mailto:") === 0) { return; }
-      if (href.match(/^http[s]?:\/\//i) && !href.match(new RegExp("^http:\\/\\/" + window.location.hostname, "i"))) { return; }
+      if (!href ||
+          href === '#' ||
+          $currentTarget.attr('target') ||
+          $currentTarget.data('ember-action') ||
+          $currentTarget.data('auto-route') ||
+          $currentTarget.hasClass('ember-view') ||
+          $currentTarget.hasClass('lightbox') ||
+          href.indexOf("mailto:") === 0 ||
+          (href.match(/^http[s]?:\/\//i) && !href.match(new RegExp("^http:\\/\\/" + window.location.hostname, "i")))) {
+         return;
+      }
 
       e.preventDefault();
       Discourse.URL.routeTo(href);
@@ -209,6 +210,17 @@ Discourse = Ember.Application.createWithMixins(Discourse.Ajax, {
   },
 
   /**
+    Add an initializer hook for after the Discourse Application starts up.
+
+    @method addInitializer
+    @param {Function} init the initializer to add.
+  **/
+  addInitializer: function(init) {
+    Discourse.initializers = Discourse.initializers || [];
+    Discourse.initializers.push(init);
+  },
+
+  /**
     Start up the Discourse application.
 
     @method start
@@ -223,6 +235,15 @@ Discourse = Ember.Application.createWithMixins(Discourse.Ajax, {
     // Developer specific functions
     Discourse.Development.observeLiveChanges();
     Discourse.subscribeUserToNotifications();
+
+    if (Discourse.initializers) {
+      var self = this;
+      Em.run.next(function() {
+        Discourse.initializers.forEach(function (init) {
+          init.call(self);
+        });
+      });
+    }
   }
 
 });

@@ -27,13 +27,18 @@ Discourse.Composer = Discourse.Model.extend({
 
   creatingTopic: Em.computed.equal('action', CREATE_TOPIC),
   creatingPrivateMessage: Em.computed.equal('action', PRIVATE_MESSAGE),
+  notCreatingPrivateMessage: Em.computed.not('creatingPrivateMessage'),
+
+  privateMessage: function(){
+    return this.get('creatingPrivateMessage') || this.get('topic.archetype') === 'private_message';
+  }.property('creatingPrivateMessage', 'topic'),
+
   editingPost: Em.computed.equal('action', EDIT),
   replyingToTopic: Em.computed.equal('action', REPLY),
 
   viewOpen: Em.computed.equal('composeState', OPEN),
   viewDraft: Em.computed.equal('composeState', DRAFT),
 
-  notCreatingPrivateMessage: Em.computed.not('creatingPrivateMessage'),
 
   archetype: function() {
     return this.get('archetypes').findProperty('id', this.get('archetypeId'));
@@ -121,12 +126,12 @@ Discourse.Composer = Discourse.Model.extend({
     // reply is always required
     if (this.get('missingReplyCharacters') > 0) return true;
 
-    if (this.get('canCategorize') && !Discourse.SiteSettings.allow_uncategorized_topics && !this.get('categoryName')) return true;
+    if (this.get('canCategorize') && !Discourse.SiteSettings.allow_uncategorized_topics && !this.get('categoryId')) return true;
 
     if (this.get('canCategorize') && Discourse.SiteSettings.enable_subcategories_support && !this.get('subcategoryName')) return true;
 
     return false;
-  }.property('loading', 'canEditTitle', 'titleLength', 'targetUsernames', 'replyLength', 'categoryName', 'subcategoryName', 'missingReplyCharacters'),
+  }.property('loading', 'canEditTitle', 'titleLength', 'targetUsernames', 'replyLength', 'categoryId', 'subcategoryName', 'missingReplyCharacters'),
 
   /**
     Is the title's length valid?
@@ -177,12 +182,12 @@ Discourse.Composer = Discourse.Model.extend({
     @property minimumTitleLength
   **/
   minimumTitleLength: function() {
-    if (this.get('creatingPrivateMessage')) {
+    if (this.get('privateMessage')) {
       return Discourse.SiteSettings.min_private_message_title_length;
     } else {
       return Discourse.SiteSettings.min_topic_title_length;
     }
-  }.property('creatingPrivateMessage'),
+  }.property('privateMessage'),
 
   /**
     Number of missing characters in the reply until valid.
@@ -199,12 +204,12 @@ Discourse.Composer = Discourse.Model.extend({
     @property minimumPostLength
   **/
   minimumPostLength: function() {
-    if( this.get('creatingPrivateMessage') ) {
+    if( this.get('privateMessage') ) {
       return Discourse.SiteSettings.min_private_message_post_length;
     } else {
       return Discourse.SiteSettings.min_post_length;
     }
-  }.property('creatingPrivateMessage'),
+  }.property('privateMessage'),
 
   /**
     Computes the length of the title minus non-significant whitespaces
@@ -330,15 +335,19 @@ Discourse.Composer = Discourse.Model.extend({
     }
 
     this.setProperties({
-      categoryName: opts.categoryName || this.get('topic.category.name'),
+      categoryId: opts.categoryId || this.get('topic.category.id'),
       subcategoryName: opts.subcategoryName || this.get('topic.subcategory.name'),
       archetypeId: opts.archetypeId || Discourse.Site.currentProp('default_archetype'),
       metaData: opts.metaData ? Em.Object.create(opts.metaData) : null,
       reply: opts.reply || this.get("reply") || ""
     });
 
-    if (!this.get('categoryName') && !Discourse.SiteSettings.allow_uncategorized_topics && Discourse.Category.list().length > 0) {
-      this.set('categoryName', Discourse.Category.list()[0].get('name'));
+    if (!this.get('categoryId') && !Discourse.SiteSettings.allow_uncategorized_topics && Discourse.Category.list().length > 0) {
+      var category = Discourse.Category.list()[0];
+      this.set('categoryId', category.get('id'));
+      if (Discourse.SiteSettings.enable_subcategories_support) {
+        this.set('subcategoryName', category.subcategories[0].get('id'));
+      }
     }
 
     if (opts.postId) {
@@ -401,23 +410,10 @@ Discourse.Composer = Discourse.Model.extend({
       var topic = this.get('topic');
       topic.setProperties({
         title: this.get('title'),
-        fancy_title: this.get('title')
+        fancy_title: this.get('title'),
+        category_id: parseInt(this.get('categoryId'), 10),
+        subcategoryName: this.get('subcategoryName')
       });
-
-      var category = Discourse.Category.list().findProperty('name', this.get('categoryName'));
-      if (category) {
-        topic.setProperties({
-          categoryName: category.get('name'),
-          category_id: category.get('id')
-        });
-        var subcategory = category.subcategories.findProperty('name', this.get('subcategoryName'));
-        if (subcategory) {
-          topic.setProperties({
-            subcategoryName: subcategory.get('name'),
-            subcategory_id: subcategory.get('id')
-          });
-        }
-      }
       topic.save();
     }
 
@@ -457,7 +453,7 @@ Discourse.Composer = Discourse.Model.extend({
     var createdPost = Discourse.Post.create({
       raw: this.get('reply'),
       title: this.get('title'),
-      category: this.get('categoryName'),
+      category: this.get('categoryId'),
       subcategory: this.get('subcategoryName'),
       topic_id: this.get('topic.id'),
       reply_to_post_number: post ? post.get('post_number') : null,
@@ -555,7 +551,7 @@ Discourse.Composer = Discourse.Model.extend({
       reply: this.get('reply'),
       action: this.get('action'),
       title: this.get('title'),
-      categoryName: this.get('categoryName'),
+      categoryId: this.get('categoryId'),
       subcategoryName: this.get('subcategoryName'),
       postId: this.get('post.id'),
       archetypeId: this.get('archetypeId'),
@@ -611,7 +607,7 @@ Discourse.Composer.reopenClass({
         topic: topic,
         action: draft.action,
         title: draft.title,
-        categoryName: draft.categoryName,
+        categoryId: draft.categoryId,
         subcategoryName: draft.subcategoryName,
         postId: draft.postId,
         archetypeId: draft.archetypeId,

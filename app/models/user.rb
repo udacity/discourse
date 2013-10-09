@@ -161,6 +161,9 @@ class User < ActiveRecord::Base
     key
   end
 
+  def created_topic_count
+    topics.count
+  end
 
   # tricky, we need our bus to be subscribed from the right spot
   def sync_notification_channel_position
@@ -327,12 +330,13 @@ class User < ActiveRecord::Base
             (SELECT v.user_id,
                     COUNT(DISTINCT parent_id) AS c
              FROM views AS v
-             WHERE parent_type = 'Topic'
+             WHERE parent_type = 'Topic' AND v.user_id IN (
+                SELECT u1.id FROM users u1 where u1.last_seen_at > :seen_at
+             )
              GROUP BY v.user_id) AS X
             WHERE
                     X.user_id = users.id AND
-                    X.c <> topics_entered AND
-                    users.last_seen_at > :seen_at
+                    X.c <> topics_entered
     ", seen_at: 1.hour.ago
 
     # Update denormalzied posts_read_count
@@ -341,10 +345,12 @@ class User < ActiveRecord::Base
               (SELECT pt.user_id,
                       COUNT(*) AS c
                FROM post_timings AS pt
+               WHERE pt.user_id IN (
+                  SELECT u1.id FROM users u1 where u1.last_seen_at > :seen_at
+               )
                GROUP BY pt.user_id) AS X
                WHERE X.user_id = users.id AND
-                     X.c <> posts_read_count AND
-                     users.last_seen_at > :seen_at
+                     X.c <> posts_read_count
     ", seen_at: 1.hour.ago
   end
 
@@ -502,6 +508,7 @@ class User < ActiveRecord::Base
   def topic_create_allowed_category_ids
     Category.topic_create_allowed(self.id).select(:id)
   end
+
 
   # Flag all posts from a user as spam
   def flag_linked_posts_as_spam

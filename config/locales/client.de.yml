@@ -373,6 +373,7 @@ de:
     private_message_info:
       title: "Privates Gespräch"
       invite: "Andere einladen..."
+      remove_allowed_user: "Willst du {{name}} wirklich aus diesem Gespräch entfernen?"
 
     email: 'Mail'
     username: 'Benutzername'
@@ -557,7 +558,7 @@ de:
 
     topics:
       none:
-        favorited: "Du hast noch keine Themen favorisierst. Um ein Thema zu favorisieren, klicke auf den Stern neben dem Titel."
+        favorited: "Du hast noch keine Themen favorisiert. Um ein Thema zu favorisieren, klicke auf den Stern neben dem Titel."
         unread: "Du hast alle Themen gelesen."
         new: "Es gibt für dich keine neuen Themen."
         read: "Du hast bislang keine Themen gelesen."

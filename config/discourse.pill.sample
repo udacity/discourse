@@ -14,9 +14,6 @@ Bluepill.application("discourse", :base_dir => ENV["HOME"] + '/.bluepill') do |a
 # Running bluepill as root? Use:
 #Bluepill.application("discourse") do |app|
 
-  app.gid = group
-  app.uid = user
-
   # getting this to work was a nightmare
   # bundle exec spawns a process totally messing with the demonize option
   # so we suck the environment out and set it up first
@@ -39,6 +36,16 @@ Bluepill.application("discourse", :base_dir => ENV["HOME"] + '/.bluepill') do |a
   end
 
   app.environment ||= {}
+
+  # Load .env file if there is one
+  if File.exist? "#{rails_root}/.env"
+    File.read("#{rails_root}/.env").split("\n").each do |l|
+      kv = l.chomp.split('=',2)
+      app.environment[kv[0]] = kv[1]
+    end
+  end
+
+  # Force RAILS_ENV to the value specified in the environment of the bluepill invocation
   app.environment['RAILS_ENV'] = rails_env
 
   app.gid = group
@@ -65,6 +72,9 @@ Bluepill.application("discourse", :base_dir => ENV["HOME"] + '/.bluepill') do |a
       process.gid = group
       process.daemonize = false
       process.stdout = process.stderr = "#{rails_root}/log/thin#{i}.log"
+      # Thanks to: http://www.garrensmith.com/2012/09/24/Staying-up-with-Unicorn-Upstart-Bluepill.html
+      # If the amount of memory is exceeded 3 times out of 5, restart
+      process.checks :mem_usage, :every => 1.minutes, :below => 750.megabytes, :times => [3, 5]
     end
   end
 
