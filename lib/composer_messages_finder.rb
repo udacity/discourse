@@ -34,6 +34,7 @@ class ComposerMessagesFinder
 
   # Should a user be contacted to update their avatar?
   def check_avatar_notification
+    return if true
 
     # A user has to be basic at least to be considered for an avatar notification
     return unless @user.has_trust_level?(:basic)

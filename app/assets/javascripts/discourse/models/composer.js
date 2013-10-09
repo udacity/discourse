@@ -133,6 +133,20 @@ Discourse.Composer = Discourse.Model.extend({
     return false;
   }.property('loading', 'canEditTitle', 'titleLength', 'targetUsernames', 'replyLength', 'categoryId', 'subcategoryName', 'missingReplyCharacters'),
 
+  setSubcategories: function() {
+    if (!Discourse.SiteSettings.enable_subcategories_support) {
+      return false
+    }
+    if (this.get('categoryId')) {
+      var category = Discourse.Category.list().findProperty('id', parseInt(this.get('categoryId'), 10));
+      if (category.subcategories.length > 0) {
+        this.set('subcategories', category.subcategories);
+        return true;
+      }
+    }
+    return false;
+  }.property('categoryId'),
+
   /**
     Is the title's length valid?
 

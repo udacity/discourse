@@ -63,13 +63,13 @@ Discourse.Topic = Discourse.Model.extend({
       category = Discourse.Category.list().findProperty('name', categoryName);
     }
     if (category) {
-      var subcategoryId = this.get('subcategory_id');
-      if (subcategoryId) {
-        return category.subcategories.findProperty('id', subcategoryId);
-      }
       var subcategoryName = this.get('subcategoryName');
       if (subcategoryName) {
         return category.subcategories.findProperty('name', subcategoryName);
+      }
+      var subcategoryId = this.get('subcategory_id');
+      if (subcategoryId) {
+        return category.subcategories.findProperty('id', subcategoryId);
       }
     }
     return null;

@@ -13,14 +13,14 @@ Discourse.SubcategoryChooserView = Discourse.ComboboxView.extend({
     valueBinding: Ember.Binding.oneWay('source'),
 
     init: function() {
-        this._super();
-        this.set('content', this.get('controller.subcategories'));
+      this._super();
+      this.set('content', this.get('controller.model.subcategories'));
     },
 
     subcategoriesChanged: function() {
-      this.set('content', this.get('controller.subcategories'));
+      this.set('content', this.get('controller.model.subcategories'));
       this.rerender();
-    }.observes('controller.subcategories'),
+    }.observes('controller.model.subcategories'),
 
     none: function() {
       return 'subcategory.none';

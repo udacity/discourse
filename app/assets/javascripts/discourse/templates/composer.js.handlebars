@@ -33,7 +33,7 @@
                 {{categoryChooser valueAttribute="id" value=model.categoryId}}
                 {{popupInputTip validation=view.categoryValidation shownAt=view.showCategoryTip}}
               </div>
-              {{#if setSubcategories}}
+              {{#if model.setSubcategories}}
                 <div class="category-input">
                   {{subcategoryChooser valueAttribute="name" value=model.subcategoryName}}
                   {{popupInputTip validation=view.subcategoryValidation shownAt=view.showSubcategoryTip}}

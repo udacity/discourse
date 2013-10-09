@@ -745,7 +745,7 @@ describe Topic do
 
     context 'changing subcategory' do
       let(:category) { Fabricate(:category) }
-      let(:subcategory) { Fabricate(:subcategory) }
+      let(:subcategory) { Fabricate(:subcategory, category: category) }
 
       it 'changes subcategory' do
         topic.category = category
