@@ -135,7 +135,7 @@ module Discourse
     end
 
     require 'middleware/sso_cookie_sessionkiller'
-    # config.middleware.insert_after ActionDispatch::RemoteIp, Middleware::SsoCookieSessionkiller
+    config.middleware.insert_after ActionDispatch::RemoteIp, Middleware::SsoCookieSessionkiller
 
     # This is not really required per-se, but we do not want to support
     # XML params, we see errors in our logs about malformed XML and there
