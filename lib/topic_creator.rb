@@ -47,9 +47,11 @@ class TopicCreator
     else
       Category.where(name: @opts[:category]).first
     end
+    subcategory = category ? category.subcategories.where(name: @opts[:subcategory]).first : nil
 
     @guardian.ensure_can_create!(Topic,category)
     topic_params[:category_id] = category.id if category.present?
+    topic_params[:subcategory_id] = subcategory.id if subcategory.present?
     topic_params[:meta_data] = @opts[:meta_data] if @opts[:meta_data].present?
     topic_params[:created_at] = Time.zone.parse(@opts[:created_at].to_s) if @opts[:created_at].present?
     topic_params

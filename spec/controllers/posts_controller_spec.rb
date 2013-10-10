@@ -1,7 +1,9 @@
 require 'spec_helper'
 
 describe PostsController do
-
+  before do
+    PostsController.any_instance.stubs(:log_activity)
+  end
 
   describe 'short_link' do
     it 'logs the incoming link once' do

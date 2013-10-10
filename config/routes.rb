@@ -15,6 +15,8 @@ Discourse::Application.routes.draw do
 
   mount Sidekiq::Web => '/sidekiq', constraints: AdminConstraint.new
 
+  resources :activities
+
   resources :forums
   get 'srv/status' => 'forums#status'
 
@@ -191,6 +193,8 @@ Discourse::Application.routes.draw do
   get 'category/:category.rss' => 'list#category_feed', format: :rss, as: 'category_feed'
   get 'category/:category' => 'list#category', as: 'category_list'
   get 'category/:category/more' => 'list#category', as: 'category_list_more'
+
+  get 'subcategory/:key' => 'list#subcategory', as: 'subcategory_list'
 
   # We've renamed popular to latest. If people access it we want a permanent redirect.
   get 'popular' => 'list#popular_redirect'

@@ -164,8 +164,9 @@ class TopicQuery
     end
   end
 
-  def list_category(category)
+  def list_category(category, subcategory=nil)
     create_list(:category, unordered: true) do |list|
+      list = list.where(subcategory_id: subcategory.id) if subcategory
       list = list.where(category_id: category.id)
       if @user
         list.order(TopicQuery.order_with_pinned_sql)

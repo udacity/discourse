@@ -4,6 +4,7 @@ describe 'api' do
   before do
     fake_key = SecureRandom.hex(32)
     SiteSetting.stubs(:api_key).returns(fake_key)
+    PostsController.any_instance.stubs(:log_activity)
   end
 
   describe PostsController do
