@@ -17,18 +17,27 @@
     font-size: 30px;
     line-height: 33px;
     margin-bottom: 8px;
+
+    a {
+      color: #333;
+    }
   }
 
   h2 {
     font-size: 20px;
     line-height: 22px;
     font-weight: normal;
+
+    a {
+      color: #333;
+    }
   }
 
   h3 {
     font-size: 13px;
     font-weight: normal;
     margin-top: 15px;
+    color: #666;
   }
 
   .bottom {
@@ -43,6 +52,11 @@
 
   p {
     margin: 0 0 5px 0;
+  }
+
+  p.loading {
+    margin-top: 30px;
+    color: #666;
   }
 
   .btn {
