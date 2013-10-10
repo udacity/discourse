@@ -171,6 +171,7 @@ Discourse.Post = Discourse.Model.extend({
         topic_id: this.get('topic_id'),
         reply_to_post_number: this.get('reply_to_post_number'),
         category: this.get('category'),
+        subcategory: this.get('subcategory'),
         archetype: this.get('archetype'),
         title: this.get('title'),
         image_sizes: this.get('imageSizes'),

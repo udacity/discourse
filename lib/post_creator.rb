@@ -26,6 +26,7 @@ class PostCreator
   #     title                 - New topic title
   #     archetype             - Topic archetype
   #     category              - Category to assign to topic
+  #     subcategory           - Subcategory to assign to topic
   #     target_usernames      - comma delimited list of usernames for membership (private message)
   #     target_group_names    - comma delimited list of groups for membership (private message)
   #     meta_data             - Topic meta data hash
@@ -232,7 +233,8 @@ class PostCreator
   def update_user_counts
     # We don't count replies to your own topics
     if @user.id != @topic.user_id
-      @user.update_topic_reply_count
+      @user.user_stat.update_topic_reply_count
+      @user.user_stat.save!
     end
 
     @user.last_posted_at = @post.created_at

@@ -10,6 +10,10 @@ class BasicCategorySerializer < ApplicationSerializer
              :topic_url,
              :hotness,
              :read_restricted,
-             :permission
+             :permission,
+             :subcategories
 
+  def subcategories
+    object.subcategories.map { |s| {id: s.id, name: s.name} }
+  end
 end

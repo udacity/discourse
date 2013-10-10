@@ -335,6 +335,11 @@ Discourse.TopicView = Discourse.View.extend(Discourse.Scrolling, {
       opts.catLink = "<a href=\"" + Discourse.getURL("/categories") + "\">" + (I18n.t("topic.browse_all_categories")) + "</a>";
     }
 
+    var subcategory = this.get('controller.content.subcategory');
+    if (subcategory) {
+      var i = subcategory.id;
+    }
+
     var tracking = this.get('topicTrackingState');
 
     var unreadTopics = tracking.countUnread();
