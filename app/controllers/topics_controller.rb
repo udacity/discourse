@@ -47,8 +47,12 @@ class TopicsController < ApplicationController
       # (see http://meta.discourse.org/t/noscript-tag-and-some-search-engines/8078)
       return render 'topics/plain', layout: false if (SiteSetting.enable_escaped_fragments && params.has_key?('_escaped_fragment_'))
 
-      View.create_for(@topic_view.topic, request.remote_ip, current_user)
       track_visit_to_topic
+
+      if should_track_visit_to_topic?
+        @topic_view.draft = Draft.get(current_user, @topic_view.draft_key, @topic_view.draft_sequence)
+      end
+
       perform_show_response
     end
 
@@ -103,9 +107,9 @@ class TopicsController < ApplicationController
 
     success = false
     Topic.transaction do
-      success = topic.save
-      topic.change_category(params[:category]) if success
-      topic.change_subcategory(params[:subcategory]) if success
+      success = topic.save \
+        && topic.change_category(params[:category]) \
+        && topic.change_subcategory(params[:subcategory])
     end
 
     # this is used to return the title to the client as it may have been
@@ -302,13 +306,17 @@ class TopicsController < ApplicationController
   end
 
   def track_visit_to_topic
-    return unless should_track_visit_to_topic?
-    TopicUser.track_visit! @topic_view.topic, current_user
-    @topic_view.draft = Draft.get(current_user, @topic_view.draft_key, @topic_view.draft_sequence)
+    Jobs.enqueue(:view_tracker,
+                    topic_id: @topic_view.topic.id,
+                    ip: request.remote_ip,
+                    user_id: (current_user.id if current_user),
+                    track_visit: should_track_visit_to_topic?
+                )
+
   end
 
   def should_track_visit_to_topic?
-    (!request.xhr? || params[:track_visit]) && current_user
+    !!((!request.xhr? || params[:track_visit]) && current_user)
   end
 
   def perform_show_response
