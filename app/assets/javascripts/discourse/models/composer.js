@@ -360,7 +360,7 @@ Discourse.Composer = Discourse.Model.extend({
       var category = Discourse.Category.list()[0];
       this.set('categoryId', category.get('id'));
       if (Discourse.SiteSettings.enable_subcategories_support) {
-        this.set('subcategoryName', category.subcategories[0].get('id'));
+        this.set('subcategoryName', category.subcategories[0].get('name'));
       }
     }
 
