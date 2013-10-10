@@ -20,6 +20,7 @@ class TopicViewSerializer < ApplicationSerializer
      :archetype,
      :slug,
      :category_id,
+     :subcategory_id,
      :deleted_at]
   end
 

@@ -8,6 +8,7 @@
 **/
 Discourse.ComposerController = Discourse.Controller.extend({
   needs: ['modal', 'topic', 'composerMessages'],
+  subcategories: [],
 
   replyAsNewTopicDraft: Em.computed.equal('model.draftKey', Discourse.Composer.REPLY_AS_NEW_TOPIC_KEY),
   checkedMessages: false,
@@ -81,6 +82,9 @@ Discourse.ComposerController = Discourse.Controller.extend({
     if( composer.get('cantSubmitPost') ) {
       this.set('view.showTitleTip', Date.now());
       this.set('view.showCategoryTip', Date.now());
+      if (Discourse.SiteSettings.enable_subcategories_support) {
+        this.set('view.showSubcategoryTip', Date.now());
+      }
       this.set('view.showReplyTip', Date.now());
       return;
     }
@@ -360,6 +364,9 @@ Discourse.ComposerController = Discourse.Controller.extend({
     this.set('model', null);
     this.set('view.showTitleTip', false);
     this.set('view.showCategoryTip', false);
+    if (Discourse.SiteSettings.enable_subcategories_support) {
+      this.set('view.showSubcategoryTip', false);
+    }
     this.set('view.showReplyTip', false);
   },
 

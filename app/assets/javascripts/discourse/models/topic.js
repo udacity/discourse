@@ -52,6 +52,29 @@ Discourse.Topic = Discourse.Model.extend({
     return null;
   }.property('category_id', 'categoryName'),
 
+  subcategory: function() {
+    var category = null;
+    var categoryId = this.get('category_id');
+    if (categoryId) {
+      category = Discourse.Category.list().findProperty('id', categoryId);
+    }
+    var categoryName = this.get('categoryName');
+    if (categoryName) {
+      category = Discourse.Category.list().findProperty('name', categoryName);
+    }
+    if (category) {
+      var subcategoryName = this.get('subcategoryName');
+      if (subcategoryName) {
+        return category.subcategories.findProperty('name', subcategoryName);
+      }
+      var subcategoryId = this.get('subcategory_id');
+      if (subcategoryId) {
+        return category.subcategories.findProperty('id', subcategoryId);
+      }
+    }
+    return null;
+  }.property('subcategory_id', 'subcategoryName'),
+
   shareUrl: function(){
     var user = Discourse.User.current();
     return this.get('url') + (user ? '?u=' + user.get('username_lower') : '');
@@ -181,7 +204,7 @@ Discourse.Topic = Discourse.Model.extend({
 
     return Discourse.ajax(this.get('url'), {
       type: 'PUT',
-      data: { title: this.get('title'), category: this.get('category.name') }
+      data: { title: this.get('title'), category: this.get('category.name'), subcategory: this.get('subcategory.name') }
     });
   },
 

@@ -13,6 +13,7 @@ class Category < ActiveRecord::Base
   end
 
   belongs_to :user
+  has_many :subcategories
 
   has_many :topics
   has_many :category_featured_topics
@@ -38,7 +39,7 @@ class Category < ActiveRecord::Base
 
   has_one :category_search_data
 
-  scope :latest, ->{ order('topic_count desc') }
+  scope :latest, ->{ order('topic_count desc').includes(:subcategories) }
 
   scope :secured, ->(guardian = nil) {
     ids = guardian.secure_category_ids if guardian

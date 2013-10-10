@@ -208,6 +208,10 @@ class ApplicationController < ActionController::Base
     post_ids
   end
 
+  def log_activity(trackable, action = params[:action])
+    current_user.activities.create! action: action, trackable: trackable
+  end
+
   private
 
     def preload_anonymous_data

@@ -450,6 +450,7 @@ en:
         post_missing: "Post can't be empty."
         post_length: "Post must be at least {{min}} characters long."
         category_missing: "You must choose a category."
+        subcategory_missing: "You must choose a subcategory."
 
       save_edit: "Save Edit"
       reply_original: "Reply on Original Topic"
@@ -928,6 +929,9 @@ en:
         confirm:
           one: "Are you sure you want to delete that post?"
           other: "Are you sure you want to delete all those posts?"
+
+    subcategory:
+      none: '(no subcategory)'
 
     category:
       can: 'can&hellip; '

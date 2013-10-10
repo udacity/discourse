@@ -40,6 +40,7 @@ class PostsController < ApplicationController
 
         "e" << MultiJson.dump(errors: post_creator.errors.full_messages)
       else
+        log_activity(post)
         post_serializer = PostSerializer.new(post, scope: guardian, root: false)
         post_serializer.topic_slug = post.topic.slug if post.topic.present?
         post_serializer.draft_sequence = DraftSequence.current(current_user, post.topic.draft_key)
@@ -84,6 +85,7 @@ class PostsController < ApplicationController
     revisor = PostRevisor.new(post)
     if revisor.revise!(current_user, params[:post][:raw])
       TopicLink.extract_from(post)
+      log_activity(post)
     end
 
 
@@ -132,6 +134,7 @@ class PostsController < ApplicationController
 
     destroyer = PostDestroyer.new(current_user, post)
     destroyer.destroy
+    log_activity(post)
 
     render nothing: true
   end
@@ -142,6 +145,7 @@ class PostsController < ApplicationController
     destroyer = PostDestroyer.new(current_user, post)
     destroyer.recover
     post.reload
+    log_activity(post)
 
     render_post_json(post)
   end
@@ -158,7 +162,7 @@ class PostsController < ApplicationController
 
     Post.transaction do
       topic_id = posts.first.topic_id
-      posts.each {|p| PostDestroyer.new(current_user, p).destroy }
+      posts.each {|p| PostDestroyer.new(current_user, p).destroy; log_activity(p) }
     end
 
     render nothing: true
@@ -180,9 +184,11 @@ class PostsController < ApplicationController
     post = find_post_from_params
     if current_user
       if params[:bookmarked] == "true"
-        PostAction.act(current_user, post, PostActionType.types[:bookmark])
+        post_action = PostAction.act(current_user, post, PostActionType.types[:bookmark])
+        log_activity(post_action)
       else
-        PostAction.remove_act(current_user, post, PostActionType.types[:bookmark])
+        post_action = PostAction.remove_act(current_user, post, PostActionType.types[:bookmark])
+        log_activity(post_action)
       end
     end
     render nothing: true
@@ -226,6 +232,7 @@ class PostsController < ApplicationController
         :title,
         :archetype,
         :category,
+        :subcategory,
         :target_usernames,
         :reply_to_post_number,
         :auto_close_days,

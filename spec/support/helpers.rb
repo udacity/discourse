@@ -38,6 +38,12 @@ module Helpers
     PostCreator.create(user, args)
   end
 
+  def create_activity()
+    topic = create_topic()
+    post = create_post(topic: topic)
+    Fabricate(:activity, trackable: post)
+  end
+
   def generate_username(length=10)
     range = [*'a'..'z']
     Array.new(length){range.sample}.join

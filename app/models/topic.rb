@@ -66,6 +66,7 @@ class Topic < ActiveRecord::Base
   end
 
   belongs_to :category
+  belongs_to :subcategory
   has_many :posts
   has_many :topic_allowed_users
   has_many :topic_allowed_groups
@@ -378,6 +379,20 @@ class Topic < ActiveRecord::Base
     changed_to_category(cat)
   end
 
+  # Changes the subcategory to a new name
+  def change_subcategory(name)
+    # If the either the category or the subcategory is blank, reset the attribute
+    if self.category.nil? || name.blank?
+      self.subcategory_id = nil
+      save
+      return
+    end
+
+    s = category.subcategories.where(name: name).first
+    return if s == self.subcategory
+    self.subcategory_id = s.id
+    save
+  end
 
   def remove_allowed_user(username)
     user = User.where(username: username).first

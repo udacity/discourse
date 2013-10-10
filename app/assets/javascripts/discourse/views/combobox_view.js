@@ -46,12 +46,14 @@ Discourse.ComboboxView = Discourse.View.extend({
   valueChanged: function() {
     var $combo = this.$();
     var val = this.get('value');
-    if (val !== undefined && val !== null) {
-      $combo.val(val.toString());
-    } else {
-      $combo.val(null);
+    if ($combo) {
+      if (val !== undefined && val !== null) {
+        $combo.val(val.toString());
+      } else {
+        $combo.val(null);
+      }
+      $combo.trigger("liszt:updated");
     }
-    $combo.trigger("liszt:updated");
   }.observes('value'),
 
   didInsertElement: function() {
