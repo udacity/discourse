@@ -367,7 +367,7 @@ Discourse.ComposerView = Discourse.View.extend(Ember.Evented, {
     if( !Discourse.SiteSettings.allow_uncategorized_topics && !this.get('model.categoryId')) {
       return Discourse.InputValidation.create({ failed: true, reason: I18n.t('composer.error.category_missing') });
     }
-  }.property('model.categoryName'),
+  }.property('model.categoryId'),
 
   subcategoryValidation: function() {
     if( Discourse.SiteSettings.enable_subcategories_support && !this.get('model.subcategoryName')) {
