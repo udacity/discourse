@@ -41,7 +41,11 @@ Discourse.PreferencesUsernameController = Discourse.ObjectController.extend({
     return I18n.t("user.change");
   }.property('saving'),
 
-  actions: {
+  showProfileDetails: function() {
+    return !Discourse.SiteSettings.enable_udacity_customization;
+  }.property(),
+
+    actions: {
     changeUsername: function() {
       var preferencesUsernameController = this;
       return bootbox.confirm(I18n.t("user.change_username.confirm"), I18n.t("no_value"), I18n.t("yes_value"), function(result) {

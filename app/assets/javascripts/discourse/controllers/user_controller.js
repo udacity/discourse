@@ -14,7 +14,11 @@ Discourse.UserController = Discourse.ObjectController.extend({
 
   canSeePrivateMessages: function() {
     return this.get('viewingSelf') || Discourse.User.currentProp('staff');
-  }.property('viewingSelf')
+  }.property('viewingSelf'),
+
+  showInvites: function() {
+    return !Discourse.SiteSettings.enable_udacity_customization;
+  }.property()
 
 });
 

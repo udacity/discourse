@@ -13,35 +13,37 @@
     </div>
   </div>
 
-  <div class="control-group">
-    <label class="control-label">{{i18n user.name.title}}</label>
-    <div class="controls">
-      {{textField value=name classNames="input-xxlarge"}}
+  {{#if showProfileDetails}}
+    <div class="control-group">
+      <label class="control-label">{{i18n user.name.title}}</label>
+      <div class="controls">
+        {{textField value=name classNames="input-xxlarge"}}
+      </div>
+      <div class='instructions'>
+        {{i18n user.name.instructions}}
+      </div>
     </div>
-    <div class='instructions'>
-      {{i18n user.name.instructions}}
-    </div>
-  </div>
 
-  <div class="control-group">
-    <label class="control-label">{{i18n user.email.title}}</label>
-    <div class="controls">
-      <span class='static'>{{email}}</span>
-      {{#if can_edit_email}}
-        {{#link-to "preferences.email" class="btn pad-left"}}<i class="icon-pencil"></i>{{/link-to}}
-      {{/if}}
+    <div class="control-group">
+      <label class="control-label">{{i18n user.email.title}}</label>
+      <div class="controls">
+        <span class='static'>{{email}}</span>
+        {{#if can_edit_email}}
+          {{#link-to "preferences.email" class="btn pad-left"}}<i class="icon-pencil"></i>{{/link-to}}
+        {{/if}}
+      </div>
+      <div class='instructions'>
+        {{i18n user.email.instructions}}
+      </div>
     </div>
-    <div class='instructions'>
-      {{i18n user.email.instructions}}
-    </div>
-  </div>
 
-  <div class="control-group">
-    <label class="control-label">{{i18n user.password.title}}</label>
-    <div class="controls">
-      <a href="#" {{action changePassword}} class='btn'><i class="icon icon-envelope"></i>{{i18n user.change_password.action}}</a> {{passwordProgress}}
+    <div class="control-group">
+      <label class="control-label">{{i18n user.password.title}}</label>
+      <div class="controls">
+        <a href="#" {{action changePassword}} class='btn'><i class="icon icon-envelope"></i>{{i18n user.change_password.action}}</a> {{passwordProgress}}
+      </div>
     </div>
-  </div>
+  {{/if}}
 
   <div class="control-group">
     <label class="control-label">{{i18n user.avatar.title}}</label>

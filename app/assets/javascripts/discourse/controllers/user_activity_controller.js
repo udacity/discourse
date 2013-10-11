@@ -14,6 +14,10 @@ Discourse.UserActivityController = Discourse.ObjectController.extend({
            (this.get('userActionType') === Discourse.UserAction.TYPES.messages_received);
   }.property('userActionType'),
 
+  showUserActivities: function(){
+    return !Discourse.SiteSettings.enable_udacity_customization;
+  }.property(),
+
   actions: {
     composePrivateMessage: function() {
       return this.get('controllers.composer').open({

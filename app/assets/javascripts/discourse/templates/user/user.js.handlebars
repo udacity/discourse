@@ -19,9 +19,11 @@
               {{#link-to 'userPrivateMessages'}}{{i18n user.private_messages}}{{/link-to}}
             </li>
           {{/if}}
-          <li>
-            {{#link-to 'user.invited'}}{{i18n user.invited.title}}{{/link-to}}
-          </li>
+          {{#if showInvites}}
+            <li>
+              {{#link-to 'user.invited'}}{{i18n user.invited.title}}{{/link-to}}
+            </li>
+          {{/if}}
           {{#if can_edit}}
             <li>
               {{#link-to 'preferences'}}{{i18n user.preferences}}{{/link-to}}
