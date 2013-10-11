@@ -45,13 +45,15 @@
     </div>
   {{/if}}
 
-  <div class="control-group">
-    <label class="control-label">{{i18n user.avatar.title}}</label>
-    <div class="controls">
-      {{boundAvatar model imageSize="large"}}
-      <button {{action showAvatarSelector}} class="btn pad-left"><i class="icon-pencil"></i></button>
+  {{#if showAvatar}}
+    <div class="control-group">
+      <label class="control-label">{{i18n user.avatar.title}}</label>
+      <div class="controls">
+        {{boundAvatar model imageSize="large"}}
+        <button {{action showAvatarSelector}} class="btn pad-left"><i class="icon-pencil"></i></button>
+      </div>
     </div>
-  </div>
+  {{/if}}
 
   <div class="control-group">
     <label class="control-label">{{i18n user.bio}}</label>

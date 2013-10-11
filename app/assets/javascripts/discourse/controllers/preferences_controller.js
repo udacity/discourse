@@ -41,6 +41,10 @@ Discourse.PreferencesController = Discourse.ObjectController.extend({
     return this.get('saving') ? I18n.t('saving') : I18n.t('save');
   }.property('saving'),
 
+  showAvatar: function() {
+    return !Discourse.SiteSettings.enable_udacity_customization;
+  }.property(),
+
   actions: {
     save: function() {
       var self = this;

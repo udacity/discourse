@@ -18,8 +18,11 @@ Discourse.UserController = Discourse.ObjectController.extend({
 
   showInvites: function() {
     return !Discourse.SiteSettings.enable_udacity_customization;
-  }.property()
+  }.property(),
 
+  showLogout: function() {
+    return !Discourse.SiteSettings.enable_udacity_customization;
+  }.property()
 });
 
 
