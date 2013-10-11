@@ -93,6 +93,7 @@ class ListController < ApplicationController
     respond(list)
   end
 
+  # it should never be invoked with uncategorized request
   def subcategory
     query = TopicQuery.new(current_user, page: params[:page])
 
@@ -102,6 +103,7 @@ class ListController < ApplicationController
     end
     guardian.ensure_can_see!(@category)
     list = query.list_category(@category, @subcategory)
+    list.more_topics_url = url_for(subcategory_list_path(params[:key], page: next_page, format: "json"))
     @description = @subcategory.description
 
     respond_to do |format|
