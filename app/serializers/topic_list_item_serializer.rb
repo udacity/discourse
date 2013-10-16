@@ -9,6 +9,7 @@ class TopicListItemSerializer < ListableTopicSerializer
              :last_poster_username
 
   has_one :category, serializer: BasicCategorySerializer
+  has_one :subcategory, serializer: SubcategorySerializer
   has_many :posters, serializer: TopicPosterSerializer, embed: :objects
 
   def starred

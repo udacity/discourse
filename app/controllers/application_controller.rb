@@ -1,14 +1,13 @@
 require 'current_user'
-require 'canonical_url'
+require_dependency 'canonical_url'
 require_dependency 'discourse'
 require_dependency 'custom_renderer'
-require 'archetype'
+require_dependency 'archetype'
 require_dependency 'rate_limiter'
 require 'omniauth-sso-cookie'
 
 class ApplicationController < ActionController::Base
   include CurrentUser
-
   include CanonicalURL::ControllerExtensions
 
   serialization_scope :guardian
@@ -206,6 +205,10 @@ class ApplicationController < ActionController::Base
       post_ids.uniq!
     end
     post_ids
+  end
+
+  def log_activity(trackable, action = params[:action])
+    current_user.activities.create! action: action, trackable: trackable
   end
 
   private

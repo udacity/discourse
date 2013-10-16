@@ -10,6 +10,16 @@ Discourse.Category = Discourse.Model.extend({
 
   init: function() {
     this._super();
+    this.set("subcategories", Em.A(_.map(this.subcategories, function(subcategory){
+      return Discourse.Subcategory.create(subcategory)
+    })));
+
+      this.set("nodes", Em.A(_.map(this.nodes, function(node){
+          return Discourse.Node.create(node)
+      })));
+
+
+
     this.set("availableGroups", Em.A(this.get("available_groups")));
     this.set("permissions", Em.A(_.map(this.group_permissions, function(elem){
       return {

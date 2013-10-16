@@ -17,6 +17,7 @@ describe Category do
   it { should have_many :topics }
   it { should have_many :category_featured_topics }
   it { should have_many :featured_topics }
+  it { should have_many :subcategories }
 
 
   describe "resolve_permissions" do

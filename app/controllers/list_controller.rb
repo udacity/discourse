@@ -1,7 +1,9 @@
 class ListController < ApplicationController
 
-  before_filter :ensure_logged_in, except: [:latest, :hot, :category, :category_feed, :latest_feed, :hot_feed, :topics_by]
+  before_filter :ensure_logged_in, except: [:latest, :hot, :category, :category_feed,
+                                            :latest_feed, :hot_feed, :topics_by, :subcategory]
   before_filter :set_category, only: [:category, :category_feed]
+  before_filter :set_category_and_subcategory, only: [:subcategory]
   skip_before_filter :check_xhr
 
   # Create our filters
@@ -91,6 +93,25 @@ class ListController < ApplicationController
     respond(list)
   end
 
+  def subcategory
+    query = TopicQuery.new(current_user, page: params[:page])
+
+    if !@category || !@subcategory
+      raise Discourse::NotFound
+      return
+    end
+    guardian.ensure_can_see!(@category)
+    list = query.list_category(@category, @subcategory)
+    @description = @subcategory.description
+
+    respond_to do |format|
+      format.html {}
+      format.json do
+        render_serialized(list, TopicListSerializer)
+      end
+    end
+  end
+
   def category_feed
     raise Discourse::InvalidParameters.new('Category RSS of "uncategorized"') if request_is_for_uncategorized?
 
@@ -145,6 +166,12 @@ class ListController < ApplicationController
   def set_category
     slug = params.fetch(:category)
     @category = Category.where("slug = ?", slug).includes(:featured_users).first || Category.where("id = ?", slug.to_i).includes(:featured_users).first
+  end
+
+  def set_category_and_subcategory
+    key = params.fetch(:key)
+    @subcategory = Subcategory.where("key = ?", key).includes(:category).first
+    @category = @subcategory.category
   end
 
   def request_is_for_uncategorized?

@@ -8,6 +8,7 @@ describe Topic do
   it { should validate_presence_of :title }
 
   it { should belong_to :category }
+  it { should belong_to :subcategory }
   it { should belong_to :user }
   it { should belong_to :last_poster }
   it { should belong_to :featured_user1 }
@@ -173,6 +174,38 @@ describe Topic do
     end
 
 
+  end
+
+  context 'category validation' do
+    context 'allow_uncategorized_topics is false' do
+      before do
+        SiteSetting.stubs(:allow_uncategorized_topics).returns(false)
+      end
+
+      it "does not allow nil category" do
+        topic = Fabricate(:topic, category: nil)
+        topic.should_not be_valid
+        topic.errors[:category_id].should be_present
+      end
+
+      it 'passes for topics with a category' do
+        Fabricate.build(:topic, category: Fabricate(:category)).should be_valid
+      end
+    end
+
+    context 'allow_uncategorized_topics is true' do
+      before do
+        SiteSetting.stubs(:allow_uncategorized_topics).returns(true)
+      end
+
+      it "passes for topics with nil category" do
+        Fabricate.build(:topic, category: nil).should be_valid
+      end
+
+      it 'passes for topics with a category' do
+        Fabricate.build(:topic, category: Fabricate(:category)).should be_valid
+      end
+    end
   end
 
 
@@ -533,10 +566,9 @@ describe Topic do
     shared_examples_for "adding a star to a topic" do
       it 'triggers a forum topic user change with true' do
         # otherwise no chance the mock will work
-        freeze_time do
-          TopicUser.expects(:change).with(@user, @topic.id, starred: true, starred_at: DateTime.now, unstarred_at: nil)
-          @topic.toggle_star(@user, true)
-        end
+        freeze_time
+        TopicUser.expects(:change).with(@user, @topic.id, starred: true, starred_at: DateTime.now, unstarred_at: nil)
+        @topic.toggle_star(@user, true)
       end
 
       it 'increases the star_count of the forum topic' do
@@ -571,10 +603,9 @@ describe Topic do
       end
 
       it 'triggers a forum topic user change with false' do
-        freeze_time do
-          TopicUser.expects(:change).with(@user, @topic.id, starred: false, unstarred_at: DateTime.now)
-          @topic.toggle_star(@user, false)
-        end
+        freeze_time
+        TopicUser.expects(:change).with(@user, @topic.id, starred: false, unstarred_at: DateTime.now)
+        @topic.toggle_star(@user, false)
       end
 
       it 'reduces the star_count' do
@@ -742,6 +773,23 @@ describe Topic do
 
     end
 
+    context 'changing subcategory' do
+      let(:category) { Fabricate(:category) }
+      let(:subcategory) { Fabricate(:subcategory, category: category) }
+
+      it 'changes subcategory' do
+        topic.category = category
+        topic.change_subcategory(subcategory.name)
+        topic.subcategory.name.should == subcategory.name
+      end
+
+      it 'drops subcategory for blank category' do
+        topic.change_category(nil)
+        topic.change_subcategory(subcategory.name)
+        topic.subcategory_id.should be_nil
+      end
+    end
+
     context 'bumping the topic' do
       before do
         topic.bumped_at = 10.minutes.from_now
@@ -825,7 +873,18 @@ describe Topic do
         it "should lower the original category's topic count" do
           @category.topic_count.should == 0
         end
+      end
 
+      context 'when allow_uncategorized_topics is false' do
+        before do
+          SiteSetting.stubs(:allow_uncategorized_topics).returns(false)
+        end
+
+        let!(:topic) { Fabricate(:topic, category: Fabricate(:category)) }
+
+        it 'returns false' do
+          topic.change_category('').should eq(false) # don't use "be_false" here because it would also match nil
+        end
       end
 
       describe 'when the category exists' do
@@ -838,7 +897,6 @@ describe Topic do
           @topic.category_id.should be_blank
           @category.topic_count.should == 0
         end
-
       end
 
     end
@@ -1138,5 +1196,33 @@ describe Topic do
         expect { topic.recover! }.to_not change { category.reload.topic_count }
       end
     end
+  end
+
+  it "limits new users to max_topics_in_first_day and max_posts_in_first_day" do
+    SiteSetting.stubs(:max_topics_in_first_day).returns(1)
+    SiteSetting.stubs(:max_replies_in_first_day).returns(1)
+    RateLimiter.stubs(:disabled?).returns(false)
+    SiteSetting.stubs(:client_settings_json).returns(SiteSetting.client_settings_json_uncached)
+
+    start = Time.now.tomorrow.beginning_of_day
+
+    freeze_time(start)
+
+    user = Fabricate(:user)
+    topic_id = create_post(user: user).topic_id
+
+    freeze_time(start + 10.minutes)
+    lambda {
+      create_post(user: user)
+    }.should raise_exception
+
+    freeze_time(start + 20.minutes)
+    create_post(user: user, topic_id: topic_id)
+
+    freeze_time(start + 30.minutes)
+
+    lambda {
+      create_post(user: user, topic_id: topic_id)
+    }.should raise_exception
   end
 end

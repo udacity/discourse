@@ -39,6 +39,7 @@ class SiteSetting < ActiveRecord::Base
   client_setting(:max_topic_title_length, 255)
   client_setting(:min_private_message_title_length, 2)
   client_setting(:allow_uncategorized_topics, true)
+  client_setting(:enable_subcategories_support, false)
   client_setting(:min_search_term_length, 3)
   client_setting(:flush_timings_secs, 5)
   client_setting(:suppress_reply_directly_below, true)
@@ -65,6 +66,9 @@ class SiteSetting < ActiveRecord::Base
   setting(:long_polling_interval, 15000)
   setting(:flags_required_to_hide_post, 3)
   setting(:cooldown_minutes_after_hiding_posts, 10)
+
+  setting(:max_topics_in_first_day, 5)
+  setting(:max_replies_in_first_day, 10)
 
   setting(:num_flags_to_block_new_user, 3)
   setting(:num_users_to_block_new_user, 3)
@@ -254,7 +258,7 @@ class SiteSetting < ActiveRecord::Base
   client_setting(:relative_date_duration, 30)
 
   client_setting(:delete_user_max_age, 14)
-  setting(:delete_all_posts_max, 10)
+  setting(:delete_all_posts_max, 15)
 
   setting(:username_change_period, 3) # days
   setting(:email_editable, true)
