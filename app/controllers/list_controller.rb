@@ -13,7 +13,10 @@ class ListController < ApplicationController
       user = list_target_user
       list = TopicQuery.new(user, list_opts).public_send("list_#{filter}")
       list.more_topics_url = url_for(self.public_send "#{filter}_path".to_sym, list_opts.merge(format: 'json', page: next_page))
-      @description = SiteSetting.site_description if [:latest, :hot].include?(filter)
+      if [:latest, :hot].include?(filter)
+        @description = SiteSetting.site_description
+        @rss = filter
+      end
 
       respond(list)
     end
@@ -21,14 +24,14 @@ class ListController < ApplicationController
 
   [:latest, :hot].each do |filter|
     define_method("#{filter}_feed") do
-      anonymous_etag(@category) do
-        @title = "#{filter.capitalize} Topics"
-        @link = "#{Discourse.base_url}/#{filter}"
-        @description = I18n.t("rss_description.#{filter}")
-        @atom_link = "#{Discourse.base_url}/#{filter}.rss"
-        @topic_list = TopicQuery.new(current_user).public_send("list_#{filter}")
-        render 'list', formats: [:rss]
-      end
+      discourse_expires_in 1.minute
+
+      @title = "#{filter.capitalize} Topics"
+      @link = "#{Discourse.base_url}/#{filter}"
+      @description = I18n.t("rss_description.#{filter}")
+      @atom_link = "#{Discourse.base_url}/#{filter}.rss"
+      @topic_list = TopicQuery.new(current_user).public_send("list_#{filter}")
+      render 'list', formats: [:rss]
     end
   end
 
@@ -117,14 +120,14 @@ class ListController < ApplicationController
 
     guardian.ensure_can_see!(@category)
 
-    anonymous_etag(@category) do
-      @title = @category.name
-      @link = "#{Discourse.base_url}/category/#{@category.slug}"
-      @description = "#{I18n.t('topics_in_category', category: @category.name)} #{@category.description}"
-      @atom_link = "#{Discourse.base_url}/category/#{@category.slug}.rss"
-      @topic_list = TopicQuery.new.list_new_in_category(@category)
-      render 'list', formats: [:rss]
-    end
+    discourse_expires_in 1.minute
+
+    @title = @category.name
+    @link = "#{Discourse.base_url}/category/#{@category.slug}"
+    @description = "#{I18n.t('topics_in_category', category: @category.name)} #{@category.description}"
+    @atom_link = "#{Discourse.base_url}/category/#{@category.slug}.rss"
+    @topic_list = TopicQuery.new.list_new_in_category(@category)
+    render 'list', formats: [:rss]
   end
 
   def popular_redirect

@@ -19,3 +19,4 @@ Discourse.Dialect.inlineRegexp({
     }
   }
 });
+
