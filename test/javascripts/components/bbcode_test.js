@@ -22,16 +22,14 @@ test('basic bbcode', function() {
          "allows embedding of tags");
 });
 
+test('invalid bbcode', function() {
+  var cooked = Discourse.Markdown.cook("[code]I am not closed\n\nThis text exists.", {lookupAvatar: false});
+  equal(cooked, "<p>[code]I am not closed</p>\n\n<p>This text exists.</p>", "does not raise an error with an open bbcode tag.");
+});
+
 test('lists', function() {
   format("[ul][li]option one[/li][/ul]", "<ul><li>option one</li></ul>", "creates an ul");
   format("[ol][li]option one[/li][/ol]", "<ol><li>option one</li></ol>", "creates an ol");
-});
-
-test('color', function() {
-  format("[color=#00f]blue[/color]", "<span style=\"color: #00f\">blue</span>", "supports [color=] with a short hex value");
-  format("[color=#ffff00]yellow[/color]", "<span style=\"color: #ffff00\">yellow</span>", "supports [color=] with a long hex value");
-  format("[color=red]red[/color]", "<span style=\"color: red\">red</span>", "supports [color=] with an html color");
-  format("[color=javascript:alert('wat')]noop[/color]", "<span>noop</span>", "it performs a noop on invalid input");
 });
 
 test('tags with arguments', function() {
@@ -41,7 +39,6 @@ test('tags with arguments', function() {
   format("[u][i]abc[/i][/u]", "<span class=\"bbcode-u\"><span class=\"bbcode-i\">abc</span></span>", "can nest tags");
   format("[b]first[/b] [b]second[/b]", "<span class=\"bbcode-b\">first</span> <span class=\"bbcode-b\">second</span>", "can bold two things on the same line");
 });
-
 
 test("quotes", function() {
 
@@ -96,6 +93,14 @@ test("quote formatting", function() {
          "</div><blockquote><p>abc</p></blockquote></aside></p>\n\n<p>hello",
          "handles new lines properly");
 
+});
+
+test("quotes with trailing formatting", function() {
+  var cooked = Discourse.Markdown.cook("[quote=\"EvilTrout, post:123, topic:456, full:true\"]\nhello\n[/quote]\n*Test*", {lookupAvatar: false});
+  equal(cooked,
+        "<p><aside class=\"quote\" data-post=\"123\" data-topic=\"456\" data-full=\"true\"><div class=\"title\">" +
+        "<div class=\"quote-controls\"></div>EvilTrout said:</div><blockquote><p>hello</p></blockquote></aside></p>\n\n<p><em>Test</em></p>",
+        "it allows trailing formatting");
 });
 
 

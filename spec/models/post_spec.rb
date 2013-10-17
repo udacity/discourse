@@ -26,6 +26,8 @@ describe Post do
   it { should have_many :post_uploads }
   it { should have_many :uploads }
 
+  it { should have_many :post_details }
+
   it { should rate_limit }
 
   let(:topic) { Fabricate(:topic) }
@@ -374,7 +376,7 @@ describe Post do
       end
 
       it "ignores code" do
-        post = Fabricate.build(:post, post_args.merge(raw: "@Jake <code>@Finn</code>"))
+        post = Fabricate.build(:post, post_args.merge(raw: "@Jake `@Finn`"))
         post.raw_mentions.should == ['jake']
       end
 
@@ -757,6 +759,22 @@ describe Post do
       p1 = Fabricate(:post)
       p2 = Fabricate(:post)
       Post.urls([p1.id, p2.id]).should == {p1.id => p1.url, p2.id => p2.url}
+    end
+  end
+
+  describe "details" do
+    it "adds details" do
+      post = Fabricate.build(:post)
+      post.add_detail("key", "value")
+      post.post_details.size.should == 1
+      post.post_details.first.key.should == "key"
+      post.post_details.first.value.should == "value"
+    end
+
+    it "can find a post by a detail" do
+      detail = Fabricate(:post_detail)
+      post   = detail.post
+      Post.find_by_detail(detail.key, detail.value).id.should == post.id
     end
   end
 
