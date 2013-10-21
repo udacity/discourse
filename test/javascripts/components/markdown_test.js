@@ -54,6 +54,22 @@ test("Line Breaks", function() {
   cooked("[] first choice\n[] second choice",
          "<p>[] first choice<br/>[] second choice</p>",
          "it handles new lines correctly with [] options");
+
+  cooked("<blockquote>evil</blockquote>\ntrout",
+         "<blockquote>evil</blockquote>\n\n<p>trout</p>",
+         "it doesn't insert <br> after blockquotes");
+
+  cooked("leading<blockquote>evil</blockquote>\ntrout",
+         "leading<blockquote>evil</blockquote>\n\n<p>trout</p>",
+         "it doesn't insert <br> after blockquotes with leading text");
+});
+
+test("Paragraphs for HTML", function() {
+  cooked("<div>hello world</div>", "<div>hello world</div>", "it doesn't surround <div> with paragraphs");
+  cooked("<p>hello world</p>", "<p>hello world</p>", "it doesn't surround <p> with paragraphs");
+  cooked("<i>hello world</i>", "<p><i>hello world</i></p>", "it surrounds inline <i> html tags with paragraphs");
+  cooked("<b>hello world</b>", "<p><b>hello world</b></p>", "it surrounds inline <b> html tags with paragraphs");
+
 });
 
 test("Links", function() {
@@ -300,9 +316,10 @@ test("sanitize", function() {
   cooked("hello<script>alert(42)</script>", "<p>hello</p>", "it sanitizes while cooking");
 
   cooked("<a href='http://disneyland.disney.go.com/'>disney</a> <a href='http://reddit.com'>reddit</a>",
-         "<a href=\"http://disneyland.disney.go.com/\">disney</a> <a href=\"http://reddit.com\">reddit</a>",
+         "<p><a href=\"http://disneyland.disney.go.com/\">disney</a> <a href=\"http://reddit.com\">reddit</a></p>",
          "we can embed proper links");
 
+  cooked("<blockquote>a\n</blockquote>\n", "<blockquote>a\n\n<br/>\n\n</blockquote>", "it does not double sanitize");
 });
 
 test("URLs in BBCode tags", function() {

@@ -84,10 +84,11 @@ zh_CN:
     yes_value: "是"
     of_value: "/"
     generic_error: "抱歉，发生了一个错误。"
-    generic_error_with_reason: "发生一个错误：%{error}"
+    generic_error_with_reason: "发生了一个错误：%{error}"
     log_in: "登录"
     age: "时间"
     last_post: "最后一帖"
+    joined: "加入时间："
     admin_title: "管理员"
     flags_title: "报告"
     show_more: "显示更多"
@@ -181,6 +182,13 @@ zh_CN:
       "11": "编辑"
       "12": "发送条目"
       "13": "收件箱"
+
+    categories:
+      category: "分类"
+      posts: "帖子"
+      topics: "主题"
+      latest: "最新"
+      latest_by: "最新发表："
 
     user:
       said: "{{username}} 说："
@@ -482,8 +490,8 @@ zh_CN:
       link_optional_text: "可选标题"
       quote_title: "引用"
       quote_text: "引用"
-      code_title: "代码"
-      code_text: "在此输入代码"
+      code_title: "预格式化文本"
+      code_text: "在此输入预格式化文本"
       upload_title: "图片"
       upload_description: "在此输入图片描述"
       olist_title: "数字列表"
@@ -583,6 +591,12 @@ zh_CN:
       private_message: '开启一段私下交流'
       list: '主题'
       new: '新主题'
+      new_topics:
+        one: '1个新主题'
+        other: '{{count}}个新主题'
+      unread_topics:
+        one: '1个未读主题'
+        other: '{{count}}个未读主题' 
       title: '主题'
       loading_more: "载入更多主题中……"
       loading: '载入主题中……'
@@ -959,6 +973,7 @@ zh_CN:
       auto_close_label: "自动关闭主题，过："
       edit_permissions: "编辑权限"
       add_permission: "添加权限"
+      this_year: "今年"
 
     flagging:
       title: '为何要报告本帖？'

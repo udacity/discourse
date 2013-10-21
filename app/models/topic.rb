@@ -99,6 +99,7 @@ class Topic < ActiveRecord::Base
   attr_accessor :user_data
   attr_accessor :posters  # TODO: can replace with posters_summary once we remove old list code
   attr_accessor :topic_list
+  attr_accessor :include_last_poster
 
   # The regular order
   scope :topic_list_order, lambda { order('topics.bumped_at desc') }
@@ -183,15 +184,13 @@ class Topic < ActiveRecord::Base
 
   # Additional rate limits on topics: per day and private messages per day
   def limit_topics_per_day
-    RateLimiter.new(user, "topics-per-day:#{Date.today.to_s}", SiteSetting.max_topics_per_day, 1.day.to_i)
-    if user.created_at > 1.day.ago
-      RateLimiter.new(user, "first-day-topics-per-day:#{Date.today.to_s}", SiteSetting.max_topics_in_first_day, 1.day.to_i)
-    end
+    apply_per_day_rate_limit_for("topics", :max_topics_per_day)
+    limit_first_day_topics_per_day if user.added_a_day_ago?
   end
 
   def limit_private_messages_per_day
     return unless private_message?
-    RateLimiter.new(user, "pms-per-day:#{Date.today.to_s}", SiteSetting.max_private_messages_per_day, 1.day.to_i)
+    apply_per_day_rate_limit_for("pms", :max_private_messages_per_day)
   end
 
   def fancy_title
@@ -326,9 +325,7 @@ class Topic < ActiveRecord::Base
   end
 
   def changed_to_category(cat)
-
-    return true if cat.blank?
-    return true if Category.where(topic_id: id).first.present?
+    return true if cat.blank? || Category.where(topic_id: id).first.present?
 
     Topic.transaction do
       old_category = category
@@ -454,11 +451,7 @@ class Topic < ActiveRecord::Base
       invite = Invite.create(invited_by: invited_by, email: lower_email)
       unless invite.valid?
 
-        # If the email already exists, grant permission to that user
-        if invite.email_already_exists and private_message?
-          user = User.where(email: lower_email).first
-          topic_allowed_users.create!(user_id: user.id)
-        end
+        grant_permission_to_user(lower_email) if email_already_exists_for?(invite)
 
         return
       end
@@ -470,6 +463,15 @@ class Topic < ActiveRecord::Base
     topic_invites.create(invite_id: invite.id)
     Jobs.enqueue(:invite_email, invite_id: invite.id)
     invite
+  end
+
+  def email_already_exists_for?(invite)
+    invite.email_already_exists and private_message?
+  end
+
+  def grant_permission_to_user(lower_email)
+    user = User.where(email: lower_email).first
+    topic_allowed_users.create!(user_id: user.id)
   end
 
   def max_post_number
@@ -629,11 +631,19 @@ class Topic < ActiveRecord::Base
 
   private
 
-    def update_category_topic_count_by(num)
-      if category_id.present?
-        Category.where(['id = ?', category_id]).update_all("topic_count = topic_count " + (num > 0 ? '+' : '') + "#{num}")
-      end
+  def update_category_topic_count_by(num)
+    if category_id.present?
+      Category.where(['id = ?', category_id]).update_all("topic_count = topic_count " + (num > 0 ? '+' : '') + "#{num}")
     end
+  end
+
+  def limit_first_day_topics_per_day
+    apply_per_day_rate_limit_for("first-day-topics", :max_topics_in_first_day)
+  end
+
+  def apply_per_day_rate_limit_for(key, method_name)
+    RateLimiter.new(user, "#{key}-per-day:#{Date.today.to_s}", SiteSetting.send(method_name), 1.day.to_i)
+  end
 
 end
 
