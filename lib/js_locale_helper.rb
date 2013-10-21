@@ -4,7 +4,13 @@ module JsLocaleHelper
 
     locale_str = locale.to_s
 
-    translations ||= YAML::load(File.open("#{Rails.root}/config/locales/client.#{locale_str}.yml"))
+    locale_path = "#{Rails.root}/config/locales/client.#{locale_str}"
+    if File.exists?("#{locale_path}.yml")
+      translations ||= YAML::load(File.open("#{locale_path}.yml"))
+    else
+      filename = "#{locale_path}.rb"
+      translations ||= eval(IO.read(filename), binding, filename)
+    end
 
     # We used to split the admin versus the client side, but it's much simpler to just
     # include both for now due to the small size of the admin section.
