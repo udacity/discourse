@@ -6,13 +6,26 @@
   @namespace Discourse
   @module Discourse
 **/
-Discourse.CategoryList = Discourse.Model.extend({});
+Discourse.CategoryList = Ember.ArrayProxy.extend({
+
+  init: function() {
+    this.content = [];
+    this._super();
+  },
+
+  moveCategory: function(categoryId, position){
+    Discourse.ajax("/category/" + categoryId + "/move", {
+      type: 'POST',
+      data: {position: position}
+    });
+  }
+});
 
 Discourse.CategoryList.reopenClass({
 
   categoriesFrom: function(result) {
-    var categories = Em.A();
-    var users = this.extractByKey(result.featured_users, Discourse.User);
+    var categories = Discourse.CategoryList.create();
+    var users = Discourse.Model.extractByKey(result.featured_users, Discourse.User);
 
 
     _.each(result.category_list.categories,function(c) {
@@ -45,7 +58,7 @@ Discourse.CategoryList.reopenClass({
   },
 
   list: function(filter) {
-    var route = this;
+    var self = this;
     var finder = null;
     if (filter === 'categories') {
       finder = PreloadStore.getAndRemove("categories_list", function() {
@@ -60,7 +73,7 @@ Discourse.CategoryList.reopenClass({
       categoryList.setProperties({
         can_create_category: result.category_list.can_create_category,
         can_create_topic: result.category_list.can_create_topic,
-        categories: route.categoriesFrom(result),
+        categories: self.categoriesFrom(result),
         draft_key: result.category_list.draft_key,
         draft_sequence: result.category_list.draft_sequence
       });

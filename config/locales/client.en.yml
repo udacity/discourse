@@ -183,6 +183,14 @@ en:
       "12": "Sent Items"
       "13": "Inbox"
 
+    categories:
+      category: "Category"
+      posts: "Posts"
+      topics: "Topics"
+      latest: "Latest"
+      latest_by: "latest by"
+      toggle_ordering: "toggle ordering control"
+
     user:
       said: "{{username}} said:"
       profile: "Profile"
@@ -585,6 +593,12 @@ en:
       private_message: 'Start a private message'
       list: 'Topics'
       new: 'new topic'
+      new_topics:
+        one: '1 new topic'
+        other: '{{count}} new topics'
+      unread_topics:
+        one: '1 unread topic'
+        other: '{{count}} unread topics'
       title: 'Topic'
       loading_more: "Loading more Topics..."
       loading: 'Loading topic...'
@@ -964,6 +978,8 @@ en:
       auto_close_label: "Auto-close topics after:"
       edit_permissions: "Edit Permissions"
       add_permission: "Add Permission"
+      this_year: "this year"
+      position: "position"
 
     flagging:
       title: 'Why are you flagging this post?'
