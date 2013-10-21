@@ -84,6 +84,9 @@ class Post < ActiveRecord::Base
     super
     update_flagged_posts_count
     TopicLink.extract_from(self)
+    if topic && topic.category_id
+      topic.category.update_latest
+    end
   end
 
   # The key we use in redis to ensure unique posts
@@ -124,7 +127,6 @@ class Post < ActiveRecord::Base
   def cook(*args)
     Plugin::Filter.apply(:after_post_cook, self, post_analyzer.cook(*args))
   end
-
 
   # Sometimes the post is being edited by someone else, for example, a mod.
   # If that's the case, they should not be bound by the original poster's
