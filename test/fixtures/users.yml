@@ -1,0 +1,47 @@
+users_001:
+  id: 1
+  name: "Alfred Hitchcock"
+  username: "Alfred"
+  email: "alfred@udacity.com"
+  email_digests: 0
+  username_lower: "alfred"
+  password_hash: "6dc14c97bac279f7ba86b6fef728f2a228b4722bfc2401e826406a79897c8b78"
+  salt: "c38fff795b91095b70a7222f4c25828b"
+  auth_token: "1bef3739668d7264baf2250d47a27571"
+  admin: 1
+  active: 1
+  approved: 1
+  trust_level: 0
+
+users_002:
+  id: 2
+  name: "Bruce Willis"
+  username: "Bruce"
+  username: "Bruce"
+  username_lower: "bruce"
+  email: "bruce@udacity.com"
+  email_digests: 0
+  password_hash: "6dc14c97bac279f7ba86b6fef728f2a228b4722bfc2401e826406a79897c8b78"
+  salt: "c38fff795b91095b70a7222f4c25828b"
+  auth_token: "1bef3739668d7264baf2250d47a27572"
+  admin: 0
+  active: 1
+  approved: 1
+  trust_level: 0
+
+users_003:
+  id: 3
+  name: "Caroline Wozniacki"
+  username: "Caroline"
+  username_lower: "caroline"
+  email: "caroline@udacity.com"
+  email_digests: 0
+  password_hash: "6dc14c97bac279f7ba86b6fef728f2a228b4722bfc2401e826406a79897c8b78"
+  salt: "c38fff795b91095b70a7222f4c25828b"
+  auth_token: "1bef3739668d7264baf2250d47a27573"
+  admin: 0
+  active: 1
+  approved: 1
+  trust_level: 0
+
+<% User.all.each{|u| u.activate} %>

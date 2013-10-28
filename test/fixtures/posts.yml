@@ -1,0 +1,57 @@
+posts_001:
+  id: 1
+  user_id: 1
+  topic_id: 3
+  post_number: 1
+  raw: First topic in cs101
+  cooked: <p>First topic in cs101</p>
+  cached_version: 1
+  reply_count: 0
+  quote_count: 0
+  off_topic_count: 0
+  like_count: 0
+  incoming_link_count: 0
+  bookmark_count: 0
+  reads: 1
+  post_type: 1
+  vote_count: 0
+  sort_order: 1
+  last_editor_id: 1
+  hidden: f
+  notify_moderators_count: 0
+  spam_count: 0
+  illegal_count: 0
+  inappropriate_count: 0
+  user_deleted: f
+  percent_rank: 1
+  notify_user_count: 0
+  like_score: 0
+
+posts_002:
+  id: 2
+  user_id: 1
+  topic_id: 4
+  post_number: 1
+  raw: Second topic in cs101
+  cooked: <p>Second topic in cs101</p>
+  cached_version: 1
+  reply_count: 0
+  quote_count: 0
+  off_topic_count: 0
+  like_count: 0
+  incoming_link_count: 0
+  bookmark_count: 0
+  reads: 1
+  post_type: 1
+  vote_count: 0
+  sort_order: 1
+  last_editor_id: 1
+  hidden: f
+  notify_moderators_count: 0
+  spam_count: 0
+  illegal_count: 0
+  inappropriate_count: 0
+  user_deleted: f
+  percent_rank: 1
+  notify_user_count: 0
+  like_score: 0

@@ -1,0 +1,30 @@
+
+categories0:
+  id: 1
+  name: cs101
+  color: BF1E2E
+  topic_id: 1
+  topic_count: 0
+  created_at: <%= 1.day.ago.to_s(:db) %>
+  updated_at: <%= 1.day.ago.to_s(:db) %>
+  user_id: 1
+  slug: cs101
+  text_color: FFFFFF
+  hotness: 5
+  read_restricted: f
+
+
+categories1:
+  id: 2
+  name: cs046
+  color: F7941D
+  topic_id: 2
+  topic_count: 0
+  created_at: <%= 1.day.ago.to_s(:db) %>
+  updated_at: <%= 1.day.ago.to_s(:db) %>
+  user_id: 1
+  slug: cs046
+  text_color: FFFFFF
+  hotness: 5
+  read_restricted: f
+
