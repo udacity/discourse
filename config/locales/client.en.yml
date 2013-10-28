@@ -202,7 +202,7 @@ en:
       private_messages: "Messages"
       activity_stream: "Activity"
       preferences: "Preferences"
-      bio: "About me"
+      bio: "Forum Bio"
       invited_by: "Invited By"
       trust_level: "Trust Level"
       notifications: "Notifications"
@@ -264,7 +264,7 @@ en:
         too_short: "Your name is too short."
         ok: "Your name looks good."
       username:
-        title: "Username"
+        title: "Forum Username"
         instructions: "Must be unique, no spaces. People can mention you as @username."
         short_instructions: "People can mention you as @{{username}}."
         available: "Your username is available."
