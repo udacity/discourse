@@ -7,11 +7,12 @@ namespace :db do
       categories = nodes['categories']
       subcategories = nodes['subcategories']
       categories.each do |c|
-        category = Category.new(c)
+        category = Category.create!(c)
         subcategories.select{|s| s['category_key'] == category['key']}.each do |s|
+          s.delete('category_key')
           category.subcategories.build(s)
         end
-        category.save
+        category.save!
         puts "-" * 80
         puts "Created category '#{category.name}'"
         puts "Created subcategories:"
