@@ -165,7 +165,9 @@ class TopicQuery
   end
 
   def list_category(category, subcategory=nil)
-    create_list(:category, unordered: true) do |list|
+    options = {unordered: true}
+    options.reverse_merge!(per_page: SiteSetting.subcategory_topics_per_page) if subcategory
+    create_list(:category, options) do |list|
       list = list.where(subcategory_id: subcategory.id) if subcategory
       list = list.where(category_id: category.id)
       if @user
