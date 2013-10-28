@@ -6,6 +6,7 @@ require_dependency 'enum'
 require_dependency 'trashable'
 require_dependency 'post_analyzer'
 require_dependency 'validators/post_validator'
+require_dependency 'plugin/filter'
 
 require 'archetype'
 require 'digest/sha1'
@@ -17,6 +18,7 @@ class Post < ActiveRecord::Base
   versioned if: :raw_changed?
 
   rate_limit
+  rate_limit :limit_posts_per_day
 
   belongs_to :user
   belongs_to :topic, counter_cache: :posts_count
@@ -31,6 +33,8 @@ class Post < ActiveRecord::Base
   has_many :uploads, through: :post_uploads
 
   has_one :post_search_data
+
+  has_many :post_details
 
   validates_with ::Validators::PostValidator
 
@@ -54,6 +58,23 @@ class Post < ActiveRecord::Base
     @types ||= Enum.new(:regular, :moderator_action)
   end
 
+  def self.find_by_detail(key, value)
+    includes(:post_details).where( "post_details.key = ? AND " +
+                                   "post_details.value = ?",
+                                   key,
+                                   value ).first
+  end
+
+  def add_detail(key, value, extra = nil)
+    post_details.build(key: key, value: value, extra: extra)
+  end
+
+  def limit_posts_per_day
+    if user.created_at > 1.day.ago && post_number > 1
+      RateLimiter.new(user, "first-day-replies-per-day:#{Date.today.to_s}", SiteSetting.max_replies_in_first_day, 1.day.to_i)
+    end
+  end
+
   def trash!(trashed_by=nil)
     self.topic_links.each(&:destroy)
     super(trashed_by)
@@ -63,6 +84,9 @@ class Post < ActiveRecord::Base
     super
     update_flagged_posts_count
     TopicLink.extract_from(self)
+    if topic && topic.category_id
+      topic.category.update_latest
+    end
   end
 
   # The key we use in redis to ensure unique posts
@@ -101,9 +125,8 @@ class Post < ActiveRecord::Base
   end
 
   def cook(*args)
-    post_analyzer.cook(*args)
+    Plugin::Filter.apply(:after_post_cook, self, post_analyzer.cook(*args))
   end
-
 
   # Sometimes the post is being edited by someone else, for example, a mod.
   # If that's the case, they should not be bound by the original poster's

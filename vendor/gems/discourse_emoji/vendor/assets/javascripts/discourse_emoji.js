@@ -20,6 +20,7 @@
     ':\'(' : 'cry',
     ':\'-(' : 'cry',
     ':-\'(' : 'cry',
+    ':p'   : 'stuck_out_tongue',
     ':P'   : 'stuck_out_tongue',
     ':-P'   : 'stuck_out_tongue',
     ':O'   : 'open_mouth',
@@ -107,4 +108,6 @@
       });
     });
   }
+
+  Discourse.Markdown.whiteListClass("emoji");
 }).call(this);

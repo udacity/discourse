@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 require 'spec_helper'
+require_dependency 'post_creator'
 
 describe Category do
   it { should validate_presence_of :user_id }
@@ -17,6 +18,7 @@ describe Category do
   it { should have_many :topics }
   it { should have_many :category_featured_topics }
   it { should have_many :featured_topics }
+  it { should have_many :subcategories }
 
 
   describe "resolve_permissions" do
@@ -67,11 +69,12 @@ describe Category do
       can_post_category.save
 
       Category.post_create_allowed(guardian).count.should == 3
+
+      # anonymous has permission to create no topics
+      guardian = Guardian.new(nil)
+      Category.post_create_allowed(guardian).count.should == 0
+
     end
-
-  end
-
-  describe "post_create_allowed" do
 
   end
 
@@ -247,6 +250,31 @@ describe Category do
     end
   end
 
+  describe 'latest' do
+    it 'should be updated correctly' do
+      category = Fabricate(:category)
+      post = create_post(category: category.name)
+
+      category.reload
+      category.latest_post_id.should == post.id
+      category.latest_topic_id.should == post.topic_id
+
+      post2 = create_post(category: category.name)
+      post3 = create_post(topic_id: post.topic_id, category: category.name)
+
+      category.reload
+      category.latest_post_id.should == post3.id
+      category.latest_topic_id.should == post2.topic_id
+
+
+      destroyer = PostDestroyer.new(Fabricate(:admin), post3)
+      destroyer.destroy
+
+      category.reload
+      category.latest_post_id.should == post2.id
+    end
+  end
+
   describe 'update_stats' do
     before do
       @category = Fabricate(:category)
@@ -254,7 +282,7 @@ describe Category do
 
     context 'with regular topics' do
       before do
-        @category.topics << Fabricate(:topic, user: @category.user)
+        create_post(user: @category.user, category: @category.name)
         Category.update_stats
         @category.reload
       end
@@ -264,6 +292,7 @@ describe Category do
         @category.topics_month.should == 1
         @category.topics_year.should == 1
         @category.topic_count.should == 1
+        @category.post_count.should == 1
       end
 
     end
@@ -281,6 +310,7 @@ describe Category do
         @category.topic_count.should == 0
         @category.topics_month.should == 0
         @category.topics_year.should == 0
+        @category.post_count.should == 0
       end
 
     end

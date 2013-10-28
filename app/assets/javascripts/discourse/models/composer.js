@@ -128,8 +128,24 @@ Discourse.Composer = Discourse.Model.extend({
 
     if (this.get('canCategorize') && !Discourse.SiteSettings.allow_uncategorized_topics && !this.get('categoryId')) return true;
 
+    if (this.get('canCategorize') && Discourse.SiteSettings.enable_subcategories_support && !this.get('subcategoryName')) return true;
+
     return false;
-  }.property('loading', 'canEditTitle', 'titleLength', 'targetUsernames', 'replyLength', 'categoryId', 'missingReplyCharacters'),
+  }.property('loading', 'canEditTitle', 'titleLength', 'targetUsernames', 'replyLength', 'categoryId', 'subcategoryName', 'missingReplyCharacters'),
+
+  setSubcategories: function() {
+    if (!Discourse.SiteSettings.enable_subcategories_support) {
+      return false
+    }
+    if (this.get('categoryId')) {
+      var category = Discourse.Category.list().findProperty('id', parseInt(this.get('categoryId'), 10));
+      if (category.subcategories.length > 0) {
+        this.set('subcategories', category.subcategories);
+        return true;
+      }
+    }
+    return false;
+  }.property('categoryId'),
 
   /**
     Is the title's length valid?
@@ -257,7 +273,7 @@ Discourse.Composer = Discourse.Model.extend({
 
   init: function() {
     this._super();
-    var val = Discourse.KeyValueStore.get('composer.showPreview') || 'true';
+    var val = (Discourse.Mobile.mobileView ? false : (Discourse.KeyValueStore.get('composer.showPreview') || 'true'));
     this.set('showPreview', val === 'true');
     this.set('archetypeId', Discourse.Site.currentProp('default_archetype'));
   },
@@ -334,13 +350,18 @@ Discourse.Composer = Discourse.Model.extend({
 
     this.setProperties({
       categoryId: opts.categoryId || this.get('topic.category.id'),
+      subcategoryName: opts.subcategoryName || this.get('topic.subcategory.name'),
       archetypeId: opts.archetypeId || Discourse.Site.currentProp('default_archetype'),
       metaData: opts.metaData ? Em.Object.create(opts.metaData) : null,
       reply: opts.reply || this.get("reply") || ""
     });
 
     if (!this.get('categoryId') && !Discourse.SiteSettings.allow_uncategorized_topics && Discourse.Category.list().length > 0) {
-      this.set('categoryId', Discourse.Category.list()[0].get('id'));
+      var category = Discourse.Category.list()[0];
+      this.set('categoryId', category.get('id'));
+      if (Discourse.SiteSettings.enable_subcategories_support) {
+        this.set('subcategoryName', category.subcategories[0].get('name'));
+      }
     }
 
     if (opts.postId) {
@@ -404,7 +425,8 @@ Discourse.Composer = Discourse.Model.extend({
       topic.setProperties({
         title: this.get('title'),
         fancy_title: this.get('title'),
-        category_id: parseInt(this.get('categoryId'), 10)
+        category_id: parseInt(this.get('categoryId'), 10),
+        subcategoryName: this.get('subcategoryName')
       });
       topic.save();
     }
@@ -446,6 +468,7 @@ Discourse.Composer = Discourse.Model.extend({
       raw: this.get('reply'),
       title: this.get('title'),
       category: this.get('categoryId'),
+      subcategory: this.get('subcategoryName'),
       topic_id: this.get('topic.id'),
       reply_to_post_number: post ? post.get('post_number') : null,
       imageSizes: opts.imageSizes,
@@ -543,6 +566,7 @@ Discourse.Composer = Discourse.Model.extend({
       action: this.get('action'),
       title: this.get('title'),
       categoryId: this.get('categoryId'),
+      subcategoryName: this.get('subcategoryName'),
       postId: this.get('post.id'),
       archetypeId: this.get('archetypeId'),
       metaData: this.get('metaData'),
@@ -598,6 +622,7 @@ Discourse.Composer.reopenClass({
         action: draft.action,
         title: draft.title,
         categoryId: draft.categoryId,
+        subcategoryName: draft.subcategoryName,
         postId: draft.postId,
         archetypeId: draft.archetypeId,
         reply: draft.reply,

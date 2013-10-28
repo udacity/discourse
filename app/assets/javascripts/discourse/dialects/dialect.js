@@ -7,7 +7,8 @@
 var parser = window.BetterMarkdown,
     MD = parser.Markdown,
     dialect = MD.dialects.Discourse = MD.subclassDialect( MD.dialects.Gruber ),
-    initialized = false;
+    initialized = false,
+    emitters = [];
 
 /**
   Initialize our dialects for processing.
@@ -22,6 +23,54 @@ function initializeDialects() {
 }
 
 /**
+  Process the text nodes in the JsonML tree, calling any emitters that have
+  been added.
+
+  @method processTextNodes
+  @param {Array} node the JsonML tree
+  @param {Object} event the parse node event data
+**/
+function processTextNodes(node, event) {
+  if (node.length < 2) { return; }
+
+  if (node[0] === '__RAW') {
+    return;
+  }
+
+  var skipSanitize = [];
+  for (var j=1; j<node.length; j++) {
+    var textContent = node[j];
+    if (typeof textContent === "string") {
+
+      if (dialect.options.sanitize && !skipSanitize[textContent]) {
+        textContent = Discourse.Markdown.sanitize(textContent);
+      }
+
+      var result = textContent;
+
+      for (var k=0; k<emitters.length; k++) {
+        result = emitters[k](result, event);
+      }
+
+      if (result) {
+        if (result instanceof Array) {
+          for (var i=0; i<result.length; i++) {
+            skipSanitize[result[i]] = true;
+          }
+          node.splice.apply(node, [j, 1].concat(result));
+        } else {
+          node[j] = result;
+        }
+      } else {
+        node[j] = textContent;
+      }
+
+    }
+  }
+
+}
+
+/**
   Parse a JSON ML tree, using registered handlers to adjust it if necessary.
 
   @method parseTree
@@ -31,19 +80,32 @@ function initializeDialects() {
   @returns {Array} the parsed tree
 **/
 function parseTree(tree, path, insideCounts) {
+
   if (tree instanceof Array) {
-    Discourse.Dialect.trigger('parseNode', {node: tree, path: path, dialect: dialect, insideCounts: insideCounts || {}});
+    var event = {node: tree, path: path, dialect: dialect, insideCounts: insideCounts || {}};
+    Discourse.Dialect.trigger('parseNode', event);
+    processTextNodes(tree, event);
 
     path = path || [];
     insideCounts = insideCounts || {};
 
     path.push(tree);
-    tree.slice(1).forEach(function (n) {
-      var tagName = n[0];
+
+    for (var i=1; i<tree.length; i++) {
+      var n = tree[i],
+          tagName = n[0];
+
       insideCounts[tagName] = (insideCounts[tagName] || 0) + 1;
-      parseTree(n, path, insideCounts);
+
+      if (n && n.length === 2 && n[0] === "p" && /^<!--([\s\S]*)-->$/m.exec(n[1])) {
+        // Remove paragraphs around comment-only nodes.
+        tree[i] = n[1];
+      } else {
+        parseTree(n, path, insideCounts);
+      }
+
       insideCounts[tagName] = insideCounts[tagName] - 1;
-    });
+    }
     path.pop();
   }
   return tree;
@@ -87,8 +149,10 @@ Discourse.Dialect = {
   cook: function(text, opts) {
     if (!initialized) { initializeDialects(); }
     dialect.options = opts;
-    var tree = parser.toHTMLTree(text, 'Discourse');
-    return parser.renderJsonML(parseTree(tree));
+    var tree = parser.toHTMLTree(text, 'Discourse'),
+        html = parser.renderJsonML(parseTree(tree));
+
+    return html;
   },
 
   /**
@@ -208,6 +272,19 @@ Discourse.Dialect = {
   },
 
   /**
+    Registers a block for processing. This is more complicated than using one of
+    the other helpers such as `replaceBlock` so consider using them first!
+
+    @method registerBlock
+    @param {String} the name of the block handler
+    @param {Function} the handler
+
+  **/
+  registerBlock: function(name, handler) {
+    dialect.block[name] = handler;
+  },
+
+  /**
     Replaces a block of text between a start and stop. As opposed to inline, these
     might span multiple lines.
 
@@ -233,9 +310,11 @@ Discourse.Dialect = {
 
   **/
   replaceBlock: function(args) {
-    dialect.block[args.start.toString()] = function(block, next) {
+    this.registerBlock(args.start.toString(), function(block, next) {
+
       args.start.lastIndex = 0;
       var m = (args.start).exec(block);
+
       if (!m) { return; }
 
       var startPos = block.indexOf(m[0]),
@@ -261,23 +340,40 @@ Discourse.Dialect = {
       }
 
       lineNumber++;
+
+
+      var blockClosed = false;
+      if (next.length > 0) {
+        for (var i=0; i<next.length; i++) {
+          if (next[i].indexOf(args.stop) >= 0) {
+            blockClosed = true;
+            break;
+          }
+        }
+      }
+
+      if (!blockClosed) {
+        if (m[2]) { next.shift(); }
+        return;
+      }
+
       while (next.length > 0) {
         var b = next.shift(),
             blockLine = b.lineNumber,
-            diff = ((typeof blockLine === "undefined") ? lineNumber : blockLine) - lineNumber;
-
-        var endFound = b.indexOf(args.stop),
+            diff = ((typeof blockLine === "undefined") ? lineNumber : blockLine) - lineNumber,
+            endFound = b.indexOf(args.stop),
             leadingContents = b.slice(0, endFound),
             trailingContents = b.slice(endFound+args.stop.length);
 
-        for (var i=1; i<diff; i++) {
+        if (endFound >= 0) { blockClosed = true; }
+        for (var j=1; j<diff; j++) {
           blockContents.push("");
         }
         lineNumber = blockLine + b.split("\n").length - 1;
 
         if (endFound !== -1) {
           if (trailingContents) {
-            next.unshift(MD.mk_block(trailingContents));
+            next.unshift(MD.mk_block(trailingContents.replace(/^\s+/, "")));
           }
 
           blockContents.push(leadingContents.replace(/\s+$/, ""));
@@ -287,10 +383,13 @@ Discourse.Dialect = {
         }
       }
 
-      var test = args.emitter.call(this, blockContents, m, dialect.options);
-      result.push(test);
+
+      var emitterResult = args.emitter.call(this, blockContents, m, dialect.options);
+      if (emitterResult) {
+        result.push(emitterResult);
+      }
       return result;
-    };
+    });
   },
 
   /**
@@ -316,25 +415,7 @@ Discourse.Dialect = {
     @param {Function} emitter The function to call with the text. It returns JsonML to modify the tree.
   **/
   postProcessText: function(emitter) {
-    Discourse.Dialect.on("parseNode", function(event) {
-      var node = event.node;
-      if (node.length < 2) { return; }
-
-      for (var j=1; j<node.length; j++) {
-        var textContent = node[j];
-        if (typeof textContent === "string") {
-          var result = emitter(textContent, event);
-          if (result) {
-            if (result instanceof Array) {
-              node.splice.apply(node, [j, 1].concat(result));
-            } else {
-              node[j] = result;
-            }
-
-          }
-        }
-      }
-    });
+    emitters.push(emitter);
   },
 
   /**

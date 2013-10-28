@@ -284,7 +284,7 @@ en:
       long_form: 'flagged this as spam'
     inappropriate:
       title: 'Inappropriate'
-      description: 'This post contains content that a reasonable person would consider offensive, abusive, or hate speech.'
+      description: 'This post contains content that a reasonable person would consider offensive, abusive, or a violation of <a href="/faq">our community guidelines</a>.'
       long_form: 'flagged this as inappropriate'
     notify_user:
       title: 'Notify {{username}}'
@@ -478,6 +478,7 @@ en:
     min_private_message_title_length: "Minimum title length for a private message in characters"
     min_search_term_length: "Minimum search term length in characters"
     allow_uncategorized_topics: "Allow topics to be created without a category. NOTE: After changing this setting, all clients will need to reload their browsers for the change to take effect."
+    enable_subcategories_support: "Enable support for subcategories. NOTE: After changing this setting, all clients will need to reload their browsers for the change to take effect."
     allow_duplicate_topic_titles: "Allow topics with identical titles"
     unique_posts_mins: "How many minutes before a user can make a post with the same content again"
     enforce_global_nicknames: "Enforce global nickname uniqueness (WARNING: only change this during initial setup)"
@@ -530,9 +531,14 @@ en:
 
     flags_required_to_hide_post: "Number of flags that cause a post to be automatically hidden and PM sent to the user (0 for never)"
     cooldown_minutes_after_hiding_posts: "Number of minutes a user must wait before they can edit a post hidden via flagging"
+
+    max_topics_in_first_day: "The maximum number of topics a user is alowed to create in thier first day on the site"
+    max_replies_in_first_day: "The maximum number of replies a user is alowed to create in thier first day on the site"
+
     num_flags_to_block_new_user: "If a new user's posts get this many spam flags from (n) different users, hide all their posts and prevent future posting. 0 disables this feature."
     num_users_to_block_new_user: "If a new user's posts get (x) spam flags from this many different users, hide all their posts and prevent future posting. 0 disables this feature."
     notify_mods_when_user_blocked: "If a user is automatically blocked, send a message to all moderators."
+    flag_sockpuppets: "If a new user (i.e., registered in the last 24 hours) who started a topic and a new user who replies in that topic are at the same IP address, both their posts will automatically be flagged as spam."
 
     traditional_markdown_linebreaks: "Use traditional linebreaks in Markdown, which require two trailing spaces for a linebreak"
     post_undo_action_window_mins: "Number of seconds users are allowed to reverse actions on a post (like, flag, etc)"
@@ -620,6 +626,8 @@ en:
 
     suggested_topics: "Number of suggested topics shown at the bottom of a topic"
 
+    clean_up_uploads: "Remove orphaned uploads to prevent illegal hosting. WARNING: you might want to make a backup of your /uploads directory before enabled this setting."
+    uploads_grace_period_in_hours: "Grace period (in hours) before an orphan upload is removed."
     enable_s3_uploads: "Place uploads on Amazon S3"
     s3_upload_bucket: "The Amazon S3 bucket name that files will be uploaded into. WARNING: must be lowercase (cf. http://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html)"
     s3_access_key_id: "The Amazon S3 access key id that will be used to upload images"
@@ -666,6 +674,8 @@ en:
     min_body_similar_length: "The minimum length of a post's body before it will be checked for similar topics"
 
     category_colors: "A pipe (|) separated list of hexadecimal color values allowed for categories"
+    enable_wide_category_list: "Enable traditional full width, non-tiling, category list"
+
     max_image_size_kb: "The maximum size of images we allow users to upload in kB - configure the limit in nginx (client_max_body_size) / apache or proxy as well."
     max_attachment_size_kb: "The maximum size of files we allow users to upload in kB - configure the limit in nginx (client_max_body_size) / apache or proxy as well."
     authorized_extensions: "A pipe (|) separated list of file extensions allowed for upload"
@@ -983,9 +993,9 @@ en:
         This threshold can be changed via the `block_new_user` site settings.
 
     spam_post_blocked:
-      subject_template: "New user %{username} blocked for repeated links"
+      subject_template: "New user %{username} posts blocked for repeated links"
       text_body_template: |
-        This is an automated message to inform you that the new user [%{username}](%{base_url}%{user_url}) tried to create multiple posts with links to %{domains}, but they were blocked from further posting to avoid spam.
+        This is an automated message to inform you that the new user [%{username}](%{base_url}%{user_url}) tried to create multiple posts with links to %{domains}, but those posts were blocked to avoid spam. The user is still able to create new posts that do not link to %{domains}.
 
         Please [review the user](%{base_url}%{user_url}).
 
@@ -1158,3 +1168,8 @@ en:
       fetch_failure: "Sorry, there has been an error while fetching the image."
       unknown_image_type: "Sorry, but the file you tried to upload doesn't appear to be an image."
       size_not_found: "Sorry, but we couldn't determine the size of the image. Maybe your image is corrupted?"
+
+  flag_reason:
+    sockpuppet: "A new user created a topic, and another new user at the same IP address replied. See the flag_sockpuppets site setting."
+    spam_hosts: "This user tried to create multiple posts with links to the same domain. See the newuser_spam_host_threshold site setting."
+

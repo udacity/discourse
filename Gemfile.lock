@@ -55,14 +55,6 @@ GIT
       thin
 
 GIT
-  remote: https://github.com/SamSaffron/redis-rack-cache.git
-  revision: 379ef30e31d4e185cb1d7f8badca0cc06403eba2
-  specs:
-    redis-rack-cache (1.2.1)
-      rack-cache (~> 1.2)
-      redis-store (~> 1.1.0)
-
-GIT
   remote: https://github.com/SamSaffron/sprockets.git
   revision: bacf2ec4d4d10cd8d1ab25a6360740314c512237
   branch: rails-compat
@@ -262,6 +254,7 @@ GEM
     metaclass (0.0.1)
     method_source (0.8.1)
     mime-types (1.23)
+    mini_portile (0.5.1)
     minitest (4.7.3)
     mocha (0.13.3)
       metaclass (~> 0.0.1)
@@ -272,7 +265,8 @@ GEM
     net-scp (1.1.2)
       net-ssh (>= 2.6.5)
     net-ssh (2.6.8)
-    nokogiri (1.5.9)
+    nokogiri (1.6.0)
+      mini_portile (~> 0.5.0)
     oauth (0.4.7)
     oauth2 (0.8.1)
       faraday (~> 0.8)
@@ -406,8 +400,8 @@ GEM
       rspec-mocks (~> 2.13.0)
     ruby-hmac (0.4.0)
     ruby-openid (2.2.3)
-    sanitize (2.0.3)
-      nokogiri (>= 1.4.4, < 1.6)
+    sanitize (2.0.6)
+      nokogiri (>= 1.4.4)
     sass (3.2.8)
     sass-rails (3.2.6)
       railties (~> 3.2.0)
@@ -535,7 +529,6 @@ DEPENDENCIES
   pry-rails
   puma
   qunit-rails
-  rack-cache
   rack-cors
   rack-mini-profiler!
   rails (= 3.2.12)
@@ -545,7 +538,6 @@ DEPENDENCIES
   rb-inotify (~> 0.9)
   redcarpet
   redis
-  redis-rack-cache!
   redis-rails
   rest-client
   rinku

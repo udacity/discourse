@@ -4,7 +4,6 @@
 //= require LAB.js
 //= require Markdown.Converter.js
 //= require Markdown.Editor.js
-//= require Markdown.Sanitizer.js
 //= require better_markdown.js
 //= require bootbox.js
 //= require bootstrap-alert.js
@@ -26,6 +25,7 @@
 //= require jquery.putcursoratend.js
 //= require jquery.tagsinput.js
 //= require jquery.ui.widget.js
+//= require jquery.sortable.js
 //= require lodash.js
 //= require md5.js
 //= require modernizr.custom.95264.js
@@ -43,6 +43,7 @@
 // Stuff we need to load first
 //= require ./discourse/mixins/scrolling
 //= require_tree ./discourse/mixins
+//= require ./discourse/components/markdown
 //= require ./discourse/components/computed
 //= require ./discourse/views/view
 //= require ./discourse/views/container_view

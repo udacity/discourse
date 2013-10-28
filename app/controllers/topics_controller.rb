@@ -40,17 +40,21 @@ class TopicsController < ApplicationController
       return redirect_to(topic.relative_url)
     end
 
-    anonymous_etag(@topic_view.topic) do
-      redirect_to_correct_topic && return if slugs_do_not_match
+    discourse_expires_in 1.minute
 
-      # render workaround pseudo-static HTML page for old crawlers which ignores <noscript>
-      # (see http://meta.discourse.org/t/noscript-tag-and-some-search-engines/8078)
-      return render 'topics/plain', layout: false if (SiteSetting.enable_escaped_fragments && params.has_key?('_escaped_fragment_'))
+    redirect_to_correct_topic && return if slugs_do_not_match
 
-      View.create_for(@topic_view.topic, request.remote_ip, current_user)
-      track_visit_to_topic
-      perform_show_response
+    # render workaround pseudo-static HTML page for old crawlers which ignores <noscript>
+    # (see http://meta.discourse.org/t/noscript-tag-and-some-search-engines/8078)
+    return render 'topics/plain', layout: false if (SiteSetting.enable_escaped_fragments && params.has_key?('_escaped_fragment_'))
+
+    track_visit_to_topic
+
+    if should_track_visit_to_topic?
+      @topic_view.draft = Draft.get(current_user, @topic_view.draft_key, @topic_view.draft_sequence)
     end
+
+    perform_show_response
 
     canonical_url @topic_view.canonical_path
   end
@@ -71,10 +75,10 @@ class TopicsController < ApplicationController
           only_moderator_liked: params[:only_moderator_liked].to_s == "true"
     )
 
-    anonymous_etag(@topic_view.topic) do
-      wordpress_serializer = TopicViewWordpressSerializer.new(@topic_view, scope: guardian, root: false)
-      render_json_dump(wordpress_serializer)
-    end
+    discourse_expires_in 1.minute
+
+    wordpress_serializer = TopicViewWordpressSerializer.new(@topic_view, scope: guardian, root: false)
+    render_json_dump(wordpress_serializer)
   end
 
 
@@ -103,8 +107,9 @@ class TopicsController < ApplicationController
 
     success = false
     Topic.transaction do
-      success = topic.save
-      topic.change_category(params[:category]) if success
+      success = topic.save \
+        && topic.change_category(params[:category]) \
+        && topic.change_subcategory(params[:subcategory])
     end
 
     # this is used to return the title to the client as it may have been
@@ -268,9 +273,8 @@ class TopicsController < ApplicationController
 
   def feed
     @topic_view = TopicView.new(params[:topic_id])
-    anonymous_etag(@topic_view.topic) do
-      render 'topics/show', formats: [:rss]
-    end
+    discourse_expires_in 1.minute
+    render 'topics/show', formats: [:rss]
   end
 
   private
@@ -301,13 +305,17 @@ class TopicsController < ApplicationController
   end
 
   def track_visit_to_topic
-    return unless should_track_visit_to_topic?
-    TopicUser.track_visit! @topic_view.topic, current_user
-    @topic_view.draft = Draft.get(current_user, @topic_view.draft_key, @topic_view.draft_sequence)
+    Jobs.enqueue(:view_tracker,
+                    topic_id: @topic_view.topic.id,
+                    ip: request.remote_ip,
+                    user_id: (current_user.id if current_user),
+                    track_visit: should_track_visit_to_topic?
+                )
+
   end
 
   def should_track_visit_to_topic?
-    (!request.xhr? || params[:track_visit]) && current_user
+    !!((!request.xhr? || params[:track_visit]) && current_user)
   end
 
   def perform_show_response

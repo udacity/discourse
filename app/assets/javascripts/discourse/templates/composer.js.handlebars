@@ -33,6 +33,13 @@
                 {{categoryChooser valueAttribute="id" value=model.categoryId}}
                 {{popupInputTip validation=view.categoryValidation shownAt=view.showCategoryTip}}
               </div>
+              {{#if model.setSubcategories}}
+                <div class="category-input">
+                  {{subcategoryChooser valueAttribute="name" value=model.subcategoryName}}
+                  {{popupInputTip validation=view.subcategoryValidation shownAt=view.showSubcategoryTip}}
+                </div>
+              {{/if}}
+
               {{#if model.archetype.hasOptions}}
                 <button class='btn' {{action showOptions}}>{{i18n topic.options}}</button>
               {{/if}}

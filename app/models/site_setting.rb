@@ -34,11 +34,12 @@ class SiteSetting < ActiveRecord::Base
   client_setting(:anon_polling_interval, 30000)
   client_setting(:min_post_length, Rails.env.test? ? 5 : 20)
   client_setting(:min_private_message_post_length, Rails.env.test? ? 5 : 10)
-  client_setting(:max_post_length, 16000)
+  client_setting(:max_post_length, 32000)
   client_setting(:min_topic_title_length, 15)
   client_setting(:max_topic_title_length, 255)
   client_setting(:min_private_message_title_length, 2)
   client_setting(:allow_uncategorized_topics, true)
+  client_setting(:enable_subcategories_support, false)
   client_setting(:min_search_term_length, 3)
   client_setting(:flush_timings_secs, 5)
   client_setting(:suppress_reply_directly_below, true)
@@ -51,6 +52,7 @@ class SiteSetting < ActiveRecord::Base
   client_setting(:min_body_similar_length, 15)
   # cf. https://github.com/discourse/discourse/pull/462#issuecomment-14991562
   client_setting(:category_colors, 'BF1E2E|F1592A|F7941D|9EB83B|3AB54A|12A89D|25AAE2|0E76BD|652D90|92278F|ED207B|8C6238|231F20|808281|B3B5B4|283890')
+  client_setting(:enable_wide_category_list, false)
 
   # auto-replace rules for title
   setting(:title_prettify, true)
@@ -66,9 +68,14 @@ class SiteSetting < ActiveRecord::Base
   setting(:flags_required_to_hide_post, 3)
   setting(:cooldown_minutes_after_hiding_posts, 10)
 
+  setting(:max_topics_in_first_day, 5)
+  setting(:max_replies_in_first_day, 10)
+
   setting(:num_flags_to_block_new_user, 3)
   setting(:num_users_to_block_new_user, 3)
   setting(:notify_mods_when_user_blocked, false)
+
+  setting(:flag_sockpuppets, true)
 
   # used mainly for dev, force hostname for Discourse.base_url
   # You would usually use multisite for this
@@ -185,6 +192,8 @@ class SiteSetting < ActiveRecord::Base
   setting(:enforce_global_nicknames, true)
   setting(:discourse_org_access_key, '')
 
+  setting(:clean_up_uploads, false)
+  setting(:uploads_grace_period_in_hours, 1)
   setting(:enable_s3_uploads, false)
   setting(:s3_access_key_id, '')
   setting(:s3_secret_access_key, '')
@@ -254,7 +263,7 @@ class SiteSetting < ActiveRecord::Base
   client_setting(:relative_date_duration, 30)
 
   client_setting(:delete_user_max_age, 14)
-  setting(:delete_all_posts_max, 10)
+  setting(:delete_all_posts_max, 15)
 
   setting(:username_change_period, 3) # days
   setting(:email_editable, true)
@@ -262,7 +271,7 @@ class SiteSetting < ActiveRecord::Base
   client_setting(:allow_uploaded_avatars, true)
   client_setting(:allow_animated_avatars, false)
 
-  setting(:detect_custom_avatars, false)
+  setting(:detect_custom_avatars, true)
   setting(:max_daily_gravatar_crawls, 500)
 
   setting(:sequential_replies_threshold, 2)

@@ -5,13 +5,16 @@
   @namespace Discourse
   @module Discourse
 **/
+
+var clickOutsideEventName = "mousedown.outside-poster-expansion";
+
 Discourse.PosterExpansionView = Discourse.View.extend({
   elementId: 'poster-expansion',
-  classNameBindings: ['controller.model::hidden'],
+  classNameBindings: ['controller.visible::hidden'],
 
-  // Position the expansion when the model changes
-  _modelChanged: function() {
-    var post = this.get('controller.post'),
+  // Position the expansion when the post changes
+  _visibleChanged: function() {
+    var post = this.get('controller.model'),
         self = this;
 
     Em.run.schedule('afterRender', function() {
@@ -20,8 +23,10 @@ Discourse.PosterExpansionView = Discourse.View.extend({
             $avatar = $('.topic-meta-data img.avatar', $post),
             position = $avatar.offset();
 
-        position.left += $avatar.width() + 5;
-        self.$().css(position);
+        if (position) {
+          position.left += $avatar.width() + 5;
+          self.$().css(position);
+        }
       }
     });
 
@@ -29,15 +34,22 @@ Discourse.PosterExpansionView = Discourse.View.extend({
 
   didInsertElement: function() {
     var self = this;
-    $('html').on('mousedown.outside-poster-expansion', function(e) {
-      if (self.$().has(e.target).length !== 0) { return; }
-      self.get('controller').set('model', null);
+    $('html').off(clickOutsideEventName).on(clickOutsideEventName, function(e) {
+
+      if (self.get('controller.visible')) {
+        var $target = $(e.target);
+        if ($target.closest('.trigger-expansion').length > 0) { return; }
+        if (self.$().has(e.target).length !== 0) { return; }
+
+        self.get('controller').close();
+      }
+
       return true;
     });
   },
 
   willDestroyElement: function() {
-    $('html').off('mousedown.outside-poster-expansion');
+    $('html').off(clickOutsideEventName);
   }
 
 });

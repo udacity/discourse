@@ -26,6 +26,7 @@ class PostCreator
   #     title                 - New topic title
   #     archetype             - Topic archetype
   #     category              - Category to assign to topic
+  #     subcategory           - Subcategory to assign to topic
   #     target_usernames      - comma delimited list of usernames for membership (private message)
   #     target_group_names    - comma delimited list of groups for membership (private message)
   #     meta_data             - Topic meta data hash
@@ -76,11 +77,16 @@ class PostCreator
                            { user: @user,
                              limit_once_per: 24.hours,
                              message_params: {domains: @post.linked_hosts.keys.join(', ')} } )
+    else
+      SpamRulesEnforcer.enforce!(@post)
     end
+
+    track_latest_on_category
 
     enqueue_jobs
     @post
   end
+
 
   def self.create(user, opts)
     PostCreator.new(user, opts).create
@@ -104,6 +110,15 @@ class PostCreator
 
 
   protected
+
+  def track_latest_on_category
+    if @post && @post.errors.count == 0 && @topic && @topic.category_id
+      Category.update_all( {latest_post_id: @post.id}, {id: @topic.category_id} )
+      if @post.post_number == 1
+        Category.update_all( {latest_topic_id: @topic.id}, {id: @topic.category_id} )
+      end
+    end
+  end
 
   def ensure_in_allowed_users
     return unless @topic.private_message?
@@ -232,7 +247,8 @@ class PostCreator
   def update_user_counts
     # We don't count replies to your own topics
     if @user.id != @topic.user_id
-      @user.update_topic_reply_count
+      @user.user_stat.update_topic_reply_count
+      @user.user_stat.save!
     end
 
     @user.last_posted_at = @post.created_at

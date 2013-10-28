@@ -16,5 +16,6 @@ Discourse.Dialect.replaceBlock({
 // Ensure that content in a code block is fully escaped. This way it's not white listed
 // and we can use HTML and Javascript examples.
 Discourse.Dialect.postProcessTag('code', function (contents) {
-  return Handlebars.Utils.escapeExpression(contents);
+  return Handlebars.Utils.escapeExpression(contents.replace(/^ +| +$/g,''));
 });
+

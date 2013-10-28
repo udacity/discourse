@@ -8,10 +8,11 @@ class CategoryList
                 :draft_key,
                 :draft_sequence
 
-  def initialize(guardian=nil)
+  def initialize(guardian=nil, options = {})
     @guardian = guardian || Guardian.new
+    @options = options
 
-    find_relevant_topics
+    find_relevant_topics unless latest_post_only?
     find_categories
 
     prune_empty
@@ -20,6 +21,10 @@ class CategoryList
   end
 
   private
+
+    def latest_post_only?
+      @options[:latest_post_only]
+    end
 
     # Retrieve a list of all the topics we'll need
     def find_relevant_topics
@@ -43,20 +48,43 @@ class CategoryList
       @categories = Category
                       .includes(:featured_users)
                       .secured(@guardian)
-                      .order('COALESCE(categories.topics_week, 0) DESC')
-                      .order('COALESCE(categories.topics_month, 0) DESC')
-                      .order('COALESCE(categories.topics_year, 0) DESC')
+
+      if latest_post_only?
+        @categories = @categories
+                        .includes(:latest_post => {:topic => :last_poster} )
+                        .order('position ASC')
+      else
+        @categories = @categories
+                        .order('COALESCE(categories.topics_week, 0) DESC')
+                        .order('COALESCE(categories.topics_month, 0) DESC')
+                        .order('COALESCE(categories.topics_year, 0) DESC')
+      end
 
       @categories = @categories.to_a
-      @categories.each do |c|
-        topics_in_cat = @topics_by_category_id[c.id]
-        if topics_in_cat.present?
-          c.displayable_topics = []
-          topics_in_cat.each do |topic_id|
-            topic = @topics_by_id[topic_id]
-            if topic.present?
-              topic.category = c
-              c.displayable_topics << topic
+
+      if latest_post_only?
+        @all_topics = []
+        @categories.each do |c|
+          if c.latest_post && c.latest_post.topic
+            c.displayable_topics = [c.latest_post.topic]
+            topic = c.latest_post.topic
+            topic.include_last_poster = true # hint for serialization
+            @all_topics << topic
+          end
+        end
+      end
+
+      if @topics_by_category_id
+        @categories.each do |c|
+          topics_in_cat = @topics_by_category_id[c.id]
+          if topics_in_cat.present?
+            c.displayable_topics = []
+            topics_in_cat.each do |topic_id|
+              topic = @topics_by_id[topic_id]
+              if topic.present?
+                topic.category = c
+                c.displayable_topics << topic
+              end
             end
           end
         end
@@ -64,6 +92,7 @@ class CategoryList
     end
 
     # Add the uncategorized "magic" category
+    # TODO: remove this entire hack, not needed
     def add_uncategorized
       # Support for uncategorized topics
       uncategorized_topics = Topic
@@ -93,10 +122,13 @@ class CategoryList
 
         # Find the appropriate place to insert it:
         insert_at = nil
-        @categories.each_with_index do |c, idx|
-          if (uncategorized.topics_week || 0) > (c.topics_week || 0)
-            insert_at = idx
-            break
+
+        unless latest_post_only?
+          @categories.each_with_index do |c, idx|
+            if (uncategorized.topics_week || 0) > (c.topics_week || 0)
+              insert_at = idx
+              break
+            end
           end
         end
 

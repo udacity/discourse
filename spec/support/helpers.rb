@@ -10,7 +10,8 @@ module Helpers
   end
 
   def log_in_user(user)
-    session[:current_user_id] = user.id
+    provider = Discourse.current_user_provider.new(request.env)
+    provider.log_on_user(user,session,cookies)
   end
 
   def fixture_file(filename)
@@ -36,6 +37,12 @@ module Helpers
     args[:topic_id] = args[:topic].id if args[:topic]
     user = args.delete(:user) || Fabricate(:user)
     PostCreator.create(user, args)
+  end
+
+  def create_activity()
+    topic = create_topic()
+    post = create_post(topic: topic)
+    Fabricate(:activity, trackable: post)
   end
 
   def generate_username(length=10)

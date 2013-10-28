@@ -36,6 +36,20 @@ describe ListController do
 
   end
 
+  describe 'RSS feeds' do
+
+    [:latest, :hot].each do |filter|
+
+      it 'renders RSS' do
+        get "#{filter}_feed", format: :rss
+        response.should be_success
+        response.content_type.should == 'application/rss+xml'
+      end
+
+    end
+
+  end
+
   context 'category' do
 
     context 'in a category' do
@@ -117,6 +131,15 @@ describe ListController do
       end
     end
 
+  end
+
+  describe "topics_by" do
+    let!(:user) { log_in }
+
+    it "should respond with a list" do
+      xhr :get, :topics_by, username: @user.username
+      response.should be_success
+    end
   end
 
   context "private_messages" do
