@@ -1,0 +1,11 @@
+user_stats_001:
+  user_id: 1
+  has_custom_avatar: 1
+
+user_stats_002:
+  user_id: 2
+  has_custom_avatar: 1
+
+user_stats_003:
+  user_id: 3
+  has_custom_avatar: 1

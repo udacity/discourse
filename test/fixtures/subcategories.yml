@@ -1,0 +1,32 @@
+
+subcategories_001:
+  id: 1
+  key: u1u1
+  name: Subcategory 1.1
+  description: Description for Subcategory 1.1
+  category_id: 1
+  user_id: 1
+
+subcategories_002:
+  id: 2
+  key: u1u2
+  name: Subcategory 1.2
+  description: Description for Subcategory 1.2
+  category_id: 1
+  user_id: 1
+
+subcategories_003:
+  id: 3
+  key: u2u1
+  name: Subcategory 2.1
+  description: Description for Subcategory 2.1
+  category_id: 2
+  user_id: 1
+
+subcategories_004:
+  id: 4
+  key: u2u2
+  name: Subcategory 2.2
+  description: Description for Subcategory 2.2
+  category_id: 2
+  user_id: 1

@@ -1,0 +1,12 @@
+client_setting_001:
+  id: 1
+  name: enable_subcategories_support
+  data_type: 5
+  value: t
+
+client_setting_002:
+  id: 2
+  name: enable_udacity_customization
+  data_type: 5
+  value: t
+

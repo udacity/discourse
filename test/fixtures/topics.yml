@@ -1,0 +1,168 @@
+
+topics_001:
+  id: '1'
+  title: Category definition for cs101
+  last_posted_at: 
+  created_at: <%= 1.day.ago.to_s(:db) %>
+  updated_at: <%= 1.day.ago.to_s(:db) %>
+  views: '0'
+  posts_count: '1'
+  user_id: '1'
+  last_post_user_id: '1'
+  reply_count: '0'
+  highest_post_number: '1'
+  off_topic_count: '0'
+  like_count: '0'
+  incoming_link_count: '0'
+  bookmark_count: '0'
+  star_count: '0'
+  category_id: '1'
+  visible: t
+  moderator_posts_count: '0'
+  closed: f
+  archived: f
+  bumped_at: <%= 1.day.ago.to_s(:db) %>
+  has_best_of: f
+  vote_count: '0'
+  archetype: regular
+  featured_user4_id: 
+  notify_moderators_count: '0'
+  spam_count: '0'
+  illegal_count: '0'
+  inappropriate_count: '0'
+  pinned_at: <%= 1.day.ago.to_s(:db) %>
+  percent_rank: '1'
+  notify_user_count: '0'
+  slug: category-definition-for-cs101
+  subcategory_id:
+
+
+topics_002:
+  id: '2'
+  title: Category definition for cs046
+  last_posted_at: 
+  created_at: <%= 1.day.ago.to_s(:db) %>
+  updated_at: <%= 1.day.ago.to_s(:db) %>
+  views: '0'
+  posts_count: '1'
+  user_id: '1'
+  last_post_user_id: '1'
+  reply_count: '0'
+  highest_post_number: '1'
+  image_url: 
+  off_topic_count: '0'
+  like_count: '0'
+  incoming_link_count: '0'
+  bookmark_count: '0'
+  star_count: '0'
+  category_id: '2'
+  visible: t
+  moderator_posts_count: '0'
+  closed: f
+  archived: f
+  bumped_at: <%= 1.day.ago.to_s(:db) %>
+  has_best_of: f
+  meta_data: 
+  vote_count: '0'
+  archetype: regular
+  featured_user4_id: 
+  notify_moderators_count: '0'
+  spam_count: '0'
+  illegal_count: '0'
+  inappropriate_count: '0'
+  pinned_at: <%= 1.day.ago.to_s(:db) %>
+  score: 
+  percent_rank: '1'
+  notify_user_count: '0'
+  subtype: 
+  slug: category-definition-for-cs046
+
+
+topics_003:
+  id: '3'
+  title: First topic in cs101
+  last_posted_at: <%= 1.day.ago.to_s(:db) %>
+  created_at: <%= 1.day.ago.to_s(:db) %>
+  updated_at: <%= 1.day.ago.to_s(:db) %>
+  views: '0'
+  posts_count: '2'
+  user_id: '1'
+  last_post_user_id: '1'
+  reply_count: '0'
+  featured_user1_id: 
+  featured_user2_id: 
+  featured_user3_id: 
+  avg_time: 
+  deleted_at: 
+  highest_post_number: '2'
+  image_url: 
+  off_topic_count: '0'
+  like_count: '0'
+  incoming_link_count: '0'
+  bookmark_count: '0'
+  star_count: '0'
+  category_id: '1'
+  visible: t
+  moderator_posts_count: '0'
+  closed: f
+  archived: f
+  bumped_at: <%= 1.day.ago.to_s(:db) %>
+  has_best_of: f
+  meta_data: ''
+  vote_count: '0'
+  archetype: regular
+  featured_user4_id: 
+  notify_moderators_count: '0'
+  spam_count: '0'
+  illegal_count: '0'
+  inappropriate_count: '0'
+  pinned_at: 
+  score: 
+  percent_rank: '1'
+  notify_user_count: '0'
+  subtype: 
+  slug: first-topic-in-cs101
+  auto_close_at: 
+  auto_close_user_id: 
+  auto_close_started_at: 
+  deleted_by_id: 
+  subcategory_id: 1
+
+
+topics_004:
+  id: '4'
+  title: Second topic in cs101
+  last_posted_at: <%= 1.day.ago.to_s(:db) %>
+  created_at: <%= 1.day.ago.to_s(:db) %>
+  updated_at: <%= 1.day.ago.to_s(:db) %>
+  views: '0'
+  posts_count: '1'
+  user_id: '1'
+  last_post_user_id: '1'
+  reply_count: '0'
+  highest_post_number: '1'
+  off_topic_count: '0'
+  like_count: '0'
+  incoming_link_count: '0'
+  bookmark_count: '0'
+  star_count: '0'
+  category_id: '1'
+  visible: t
+  moderator_posts_count: '0'
+  closed: f
+  archived: f
+  bumped_at: <%= 1.day.ago.to_s(:db) %>
+  has_best_of: f
+  meta_data: ''
+  vote_count: '0'
+  archetype: regular
+  featured_user4_id: 
+  notify_moderators_count: '0'
+  spam_count: '0'
+  illegal_count: '0'
+  inappropriate_count: '0'
+  percent_rank: '1'
+  notify_user_count: '0'
+  slug: second-topic-in-cs101
+  subcategory_id: 2
+
