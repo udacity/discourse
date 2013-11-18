@@ -8,7 +8,7 @@ class Subcategory < ActiveRecord::Base
   validates :category_id, presence: true
   validates :user_id, presence: true
   validates :key, presence: true, uniqueness: true
-  validates :name, presence: true, length: { in: 1..50 }
+  validates :name, presence: true, length: { in: 1..255 }
 
   # TODO broussev add publish_subcategory_list & invalidate_site_cache
 end

@@ -40,6 +40,7 @@ class SiteSetting < ActiveRecord::Base
   client_setting(:min_private_message_title_length, 2)
   client_setting(:allow_uncategorized_topics, true)
   client_setting(:enable_subcategories_support, false)
+  setting(:subcategory_topics_per_page, 10)
   client_setting(:min_search_term_length, 3)
   client_setting(:flush_timings_secs, 5)
   client_setting(:suppress_reply_directly_below, true)
