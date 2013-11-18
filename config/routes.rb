@@ -278,4 +278,6 @@ Discourse::Application.routes.draw do
   # special case for categories
   root to: "categories#index", constraints: HomePageConstraint.new("categories"), :as => "categories_index"
 
+  match '/*path', to: 'application#options', via: [:options]
 end
+

@@ -191,6 +191,10 @@ class ApplicationController < ActionController::Base
     current_user.activities.create! action: action, trackable: trackable
   end
 
+  def options
+    render :nothing => true, :status => 200
+  end
+
   private
 
     def preload_anonymous_data
