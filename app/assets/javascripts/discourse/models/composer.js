@@ -128,7 +128,11 @@ Discourse.Composer = Discourse.Model.extend({
 
     if (this.get('canCategorize') && !Discourse.SiteSettings.allow_uncategorized_topics && !this.get('categoryId')) return true;
 
-    if (this.get('canCategorize') && Discourse.SiteSettings.enable_subcategories_support && !this.get('subcategoryName')) return true;
+    if (this.get('canCategorize') && Discourse.SiteSettings.enable_subcategories_support && !this.get('subcategoryName')) {
+      if (!this.get('categoryId')) return true;
+      var category = Discourse.Category.list().findProperty('id', parseInt(this.get('categoryId'), 10));
+      if (category.subcategories.length > 0) return true;
+    }
 
     return false;
   }.property('loading', 'canEditTitle', 'titleLength', 'targetUsernames', 'replyLength', 'categoryId', 'subcategoryName', 'missingReplyCharacters'),
@@ -359,7 +363,7 @@ Discourse.Composer = Discourse.Model.extend({
     if (!this.get('categoryId') && !Discourse.SiteSettings.allow_uncategorized_topics && Discourse.Category.list().length > 0) {
       var category = Discourse.Category.list()[0];
       this.set('categoryId', category.get('id'));
-      if (Discourse.SiteSettings.enable_subcategories_support) {
+      if (Discourse.SiteSettings.enable_subcategories_support && category.subcategories.length > 0) {
         this.set('subcategoryName', category.subcategories[0].get('name'));
       }
     }
