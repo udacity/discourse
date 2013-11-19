@@ -370,8 +370,13 @@ Discourse.ComposerView = Discourse.View.extend(Ember.Evented, {
   }.property('model.categoryId'),
 
   subcategoryValidation: function() {
-    if( Discourse.SiteSettings.enable_subcategories_support && !this.get('model.subcategoryName')) {
-      return Discourse.InputValidation.create({ failed: true, reason: I18n.t('composer.error.subcategory_missing') });
+    if( Discourse.SiteSettings.enable_subcategories_support && this.get('model.categoryId')) {
+      if (!this.get('model.subcategoryName')) {
+        var category = Discourse.Category.list().findProperty('id', parseInt(this.get('model.categoryId'), 10));
+        if (category.subcategories.length > 0) {
+          return Discourse.InputValidation.create({ failed: true, reason: I18n.t('composer.error.subcategory_missing') });
+        }
+      }
     }
   }.property('model.subcategoryName'),
 
