@@ -37,7 +37,7 @@ class Auth::SsoCookieAuthenticator < Auth::Authenticator
       sso_id: data[:ssocookie_user_id],
     )
     user.email = data[:ssocookie_email]
-    user.toggle(:active)
+    user.activate
     user.save
   end
 
