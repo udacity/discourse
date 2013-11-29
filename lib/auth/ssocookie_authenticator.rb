@@ -11,7 +11,7 @@ class Auth::SsoCookieAuthenticator < Auth::Authenticator
     user_id = data["account_key"]
 
     result.username = screen_name = data["nickname"]
-    result.email = email = "#{user_id}@udacityu.appspot.com"
+    result.email = email = "#{user_id}@udacityu.appspotmail.com"
 
     result.extra_data = {
       ssocookie_user_id: user_id,
