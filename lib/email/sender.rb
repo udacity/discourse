@@ -130,9 +130,9 @@ module Email
       @message.add_date unless @message.has_date?
 
       hmac = OpenSSL::HMAC.new(hmac_key, 'sha256')
-      HMAC_HEADERS.each { |hn|
-        next unless @message.header[hn]
-        update_hmac(hmac, hn.downcase, ': ', @message.header[hn].value)
+      HMAC_HEADERS.each { |h|
+        next unless @message.header[h]
+        update_hmac(hmac, h.downcase, ': ', @message.header[h].value)
       }
       body = @message.body.raw_source.rstrip
       update_hmac(hmac, body)
