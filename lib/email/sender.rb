@@ -8,6 +8,7 @@
 #
 require_dependency 'email/renderer'
 require 'uri'
+require 'openssl'
 
 module Email
   class Sender
@@ -75,6 +76,8 @@ module Email
       @message.header['X-Discourse-Post-Id'] = nil
       @message.header['X-Discourse-Reply-Key'] = nil
 
+      add_udacity_hmac!
+
       @message.deliver
 
       # Save and return the email log
@@ -101,11 +104,41 @@ module Email
 
     private
 
+    HMAC_HEADERS = ['from', 'to', 'subject', 'message-id', 'date', 'x-udacity-target-accounts',
+      'x-udacity-category', 'x-udacity-ga-campaign', 'x-udacity-email-template']
+
     def header_value(name)
       header = @message.header[name]
       return nil unless header
       header.value
     end
 
+    def update_hmac(hm, *args)
+      args.each { |v|
+        v = v.gsub /[\n\r]+/, ' '
+        v = v.encode('utf-8')
+        hm.update(v)
+      }
+    end
+
+    def add_udacity_hmac!
+      hmac_key = SiteSetting.udacity_email_hmac_key
+      return if hmac_key.nil? || hmac_key.empty?
+
+      # these headers are needed to calculate the HMAC
+      @message.add_message_id unless @message.has_message_id?
+      @message.add_date unless @message.has_date?
+
+      hmac = OpenSSL::HMAC.new(hmac_key, 'sha256')
+      HMAC_HEADERS.each { |h|
+        next unless @message.header[h]
+        update_hmac(hmac, h.downcase, ': ', @message.header[h].value)
+      }
+      body = @message.body.raw_source.rstrip
+      update_hmac(hmac, body)
+      body = @message.html_part.body.raw_source
+      update_hmac(hmac, body)
+      @message.header['X-Udacity-HMAC'] = hmac.hexdigest
+    end
   end
 end
