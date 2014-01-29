@@ -115,7 +115,7 @@ module Email
 
     def update_hmac(hm, *args)
       args.each { |v|
-        v = v.gsub /[\n\r]+/, ' '
+        v = v.gsub /\s+/, ' '
         v = v.encode('utf-8')
         hm.update(v)
       }
@@ -134,10 +134,9 @@ module Email
         next unless @message.header[h]
         update_hmac(hmac, h.downcase, ': ', @message.header[h].value)
       }
-      body = @message.body.raw_source.rstrip
-      update_hmac(hmac, body)
-      body = @message.html_part.body.raw_source
-      update_hmac(hmac, body)
+      @message.parts.each { |p|
+        update_hmac(hmac, p.body.raw_source.rstrip)
+      }
       @message.header['X-Udacity-HMAC'] = hmac.hexdigest
     end
   end
