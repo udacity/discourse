@@ -147,7 +147,7 @@ class ListController < ApplicationController
   def set_category_and_subcategory
     key = params.fetch(:key)
     @subcategory = Subcategory.where("key = ?", key).includes(:category).first
-    @category = @subcategory.category
+    @category = @subcategory.nil? ? nil : @subcategory.category
   end
 
   def request_is_for_uncategorized?
